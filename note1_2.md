@@ -646,14 +646,58 @@ For applicative-order evaluation…
 
 <br>
 
+### Chapter 1.2.6 Example: Testing for Primality
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What is primality?  
+
+- Whether a given integer is a prime number or not.  
+
+> This section describes two methods for checking the primality of an integer n, one with order of growth Θ(√n), and a “probabilistic” algorithm with order of growth Θ(log n). The exercises at the end of this section suggest programming projects based on these algorithms.  
 
 <br>
 
+#### Searching for divisors - Θ(√n) Solution
 
+> … One way to test if a number is prime is to **find the number’s divisors**. The following program finds the smallest integral divisor (greater than 1) of a given number n. It does this in a straightforward way, by testing n for divisibility by successive integers starting with 2.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What would be the order of growth of the process above?  
+
+> The end test for find-divisor is based on the fact that if n is not prime it must have a divisor less than or equal to √n. This means that **the algorithm need only test divisors between 1 and √n**. Consequently, the number of steps required to identify n as prime will have order of growth Θ(√n).  
 
 <br>
 
+#### Fermat Test - Θ(log n) Solution
 
+> Fermat’s Little Theorem: If n is a prime number and a is any positive integer less than n, then a raised to the nth power is congruent to a modulo n.  
 
-#SICP  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. Congruent modulo?  
+
+- Two numbers are said to be congruent modulo n, if they both have the same remainder when divided by n. In the statement above, it says “a is any positive integer less than n”.  
+- That means, the following statement is true, for a prime number `n`:  
+```
+a^n % n == a
+```
+
+> If n is not prime, then, in general, most of the numbers a < n will not satisfy the above relation. This leads to the following algorithm for testing primality:  
+> Given a number n, pick a random number a < n and compute the remainder of a^n modulo n.  
+> -> If the result is not equal to `a`, then n is certainly not prime.  
+> -> If it is `a`, then chances are good that n is prime.  
+> Now pick another random number `a` and test it with the same method. If it also satisfies the equation, then we can be even more confident that n is prime.  
+> By trying more and more values of `a`, we can increase our confidence in the result. This algorithm is known as the **Fermat test**.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. Why the author keep saying about uncertainty - “most of”, “chances are good”? Are there some cases when that’s not true?  
+
+- Original Fermat’s Little Theorem says: “If n is a prime number …” - It starts with the fact that n is prime. But we don’t know If n is prime or not. So we should start from the latter statements: “… `a` raised to the `n^th` power is congruent to `a` modulo `n`”  
+- For instance, `4^6 % 6` is equal to 4, but 6 is definitely not a prime number! There’s a chance of existence of `a` that meets the condition, even though `n` is not prime.  
+- If all integers between 1 and n-1 meets the condition, then n is prime. If any of the integers does not follow the condition, then n is not a prime.  
+
+> … if n ever fails the Fermat test, we can be certain that n is not prime. But **the fact that n passes the test, while an extremely strong indication, is still not a guarantee that n is prime**. What we would like to say is that for any number n, if we perform the test enough times and find that n always passes the test, then the probability of error in our primality test can be made as small as we like.  
+> Unfortunately, this assertion is not quite correct. There do exist numbers that fool the Fermat test: numbers n that are not prime and yet have the property that a^n is congruent to a modulo n for all integers a < n. (Carmichael numbers)  
+
+- In some cases, Fermat test doesn’t work correctly, but it is quite reliable in practice.  
+- This kinds of algorithms - reducing the chance of error to arbitrarily small number so that It can be used in practice although it’s not 100% correct.  
+
+<br>
+
+- Interesting things to note is that the algorithm above is widely used in cryptography, not only in pure mathematics. Based on the fact that factoring an arbitrary 200-digit number is computationally infeasible, while knowing the primality of such a number can be checked in a few seconds by using this probabilistic algorithm.  
+
