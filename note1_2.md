@@ -695,9 +695,78 @@ a^n % n == a
 > Unfortunately, this assertion is not quite correct. There do exist numbers that fool the Fermat test: numbers n that are not prime and yet have the property that a^n is congruent to a modulo n for all integers a < n. (Carmichael numbers)  
 
 - In some cases, Fermat test doesn’t work correctly, but it is quite reliable in practice.  
-- This kinds of algorithms - reducing the chance of error to arbitrarily small number so that It can be used in practice although it’s not 100% correct.  
+-- Interesting things to note is that the algorithm above is widely used in cryptography, not only in pure mathematics. Based on the fact that factoring an arbitrary 200-digit number is computationally infeasible, while knowing the primality of such a number can be checked in a few seconds by using this probabilistic algorithm.  
 
-<br>
+###### Exercise 1.21
 
-- Interesting things to note is that the algorithm above is widely used in cryptography, not only in pure mathematics. Based on the fact that factoring an arbitrary 200-digit number is computationally infeasible, while knowing the primality of such a number can be checked in a few seconds by using this probabilistic algorithm.  
+Find the smallest divisor of each of the following numbers: 199, 1999, 19999  
+- The answers: 199, 1999, 7  
+
+###### Exercise 1.22
+
+> Most Lisp implementations include a primitive called runtime that returns an integer that specifies the amount of time the system has been running (measured, for example, in microseconds). … write a procedure search-for-primes that checks the primality of consecutive odd integers in a specified range.  Use your procedure to find the three smallest primes larger than 1000; larger than 10,000; larger than 100,000; larger than 1,000,000.  
+> Note the time needed to test each prime. Expectation: testing for primes around 10000 should take about √10 times as long as testing for primes around 1000. - Is it correct?  
+
+A procedure that checks the primality of consecutive odd integers in a specified range:  
+```scheme
+(define (find-primes-in-range start end)
+  (define (f start end)
+    (timed-prime-test start)
+    (find-primes-in-range (+ start 2) end)
+  )
+  (cond ((> start end) (display "end"))
+        (else (if (even? start)
+                  (find-primes-in-range (+ start 1) end)
+                  (f start end)
+              )
+        )
+  )
+)
+```
+
+- With this procedure, I got the following results (Just few samples):  
+```
+9973 - 0.01s
+99991 - 0.13s
+999983 - 1.61s
+```
+
+1. For small numbers, it’s pretty hard to estimate the times passed, because computing small numbers are just so fast.  
+2. From my machine, testing for primes around `10n` takes about 1.3 times as long as testing for primes around `n`. Note `√10` is approximately 3.162.  
+3. Although the rates are different, we can see that the amount of time taken, is proportional to the input number `n`.  
+
+###### Exercise 1.23
+
+> After it checks to see if the number is divisible by 2 there is no point in checking to see if it is divisible by any larger even numbers … define a procedure `next` that returns 3 if its input is equal to 2 and otherwise return its input plus 2 …  
+> With `timed-prime-test` incorporating this modified version of `smallest-divisor`, run the test for each of the 12 primes found in Exercise 1.22. Since this modification halves the number of test steps, you should expect it to run about twice as fast. Is this expectation confirmed? If not, what is the observed ratio of the speeds of the two algorithms, and how do you explain the fact that it is different from 2?  
+
+Here’s the implementation of `next`,  
+```scheme
+(define (next n)
+  (if (= n 2) 3 (+ n 2)))
+```
+
+- With this modification, I got the following results:  
+```
+9973 - 0.01s -> 0.01s
+99991 - 0.13s -> 0.09s
+999983 - 1.61s -> 0.89s
+```
+
+1. Seems like the modification is less effective on small numbers, and more effective on big numbers. Since **the number of omitted operations grows as the input number**? Or some hardware/OS problems?  
+
+###### Exercise 1.24
+
+> Modify the timed-prime-test procedure of Exercise 1.22 to use fast-prime? (the Fermat method), and test each of the 12 primes you found in that exercise. Since the Fermat test has Θ(log n) growth, how would you expect the time to test primes near 1,000,000 to compare with the time needed to test primes near 1000? Do your data bear this out? Can you explain any discrepancy you find?  
+
+- With `fast-prime?`, I got the following results:  
+```
+9973 - 0.01s -> 0.01s -> 0.03s
+99991 - 0.13s -> 0.09s -> 0.27s
+999983 - 1.61s -> 0.89s -> 2.05s
+```
+
+1. This is strange. It takes about 2-3 times slower than not using `fast-prime?`.  
+
+Next up: Do exercise 1.26
 
