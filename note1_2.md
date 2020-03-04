@@ -768,5 +768,33 @@ Here’s the implementation of `next`,
 
 1. This is strange. It takes about 2-3 times slower than not using `fast-prime?`.  
 
-Next up: Do exercise 1.26
+###### Exercise 1.26
+
+```
+(square (expmod base (/ exp 2) m))
+->
+(* (expmod base (/ exp 2) m)
+   (expmod base (/ exp 2) m))
+```
+
+> “By writing the procedure like that, you have transformed the Θ(log n) process into a Θ(n) process.”  
+
+- Consider the following code snippets.  
+```scheme
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (* (expmod base (/ exp 2) m)
+                       (expmod base (/ exp 2) m))
+                    m))
+        (else          (remainder (* base
+                       (expmod base (- exp 1) m))
+                    m))))
+```
+
+For every step, `exp` decreases by factor of 2, and there are 2 invocations of `expmod`.  
+In nth step, `exp` - which determines when to finish the task, will be divided by 2^n, and the number of executions of `expmod` will be multiplied by 2^n. So for every step, the total number of operations to perform is equal.  
+`(log n)^n = n`, so the above process has order of growth Θ(n).  
+
+This is because of the nature of recursion. By writing the procedure like this, the process became a tree-recursive process from linearly recursive process.  
 
