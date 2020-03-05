@@ -86,3 +86,171 @@ We can express this directly as a procedure:
      dx))
 ```
 
+<br>
+
+### Exercise 1.29
+
+Simpson’s Rule - The integral of a function f between a and b is approximated as:  
+```
+h/3 * (y_0 + 4y_1 + 2y_2 + 4y_3 + 2y_4 + ... + 2y_(n-2) + 4y_(n-1) + yn)
+```
+Where h = `(b - a) / n` for some even integer n, and `y_k = f(a + kh)`  
+
+Define a procedure that takes as arguments f, a, b, and n and returns the value of the integral using Simpson’s Rule!  
+
+My solution:  
+```scheme
+(define (sum-index mapper a b)
+  (if (> a b)
+      0
+      (+ (mapper a)
+         (sum-index mapper (+ a 1) b))))
+
+(define (simpson-integral f a b n)
+  (define h (/ (- b a) n))
+  (define (yof k) (f (+ a (* k h))))
+  (define (mapper index)
+    (define y (yof index))
+    (cond ((or (= index 0) (= index n)) y)
+          ((even? index) (* y 2))
+          (else (* y 4))))
+  (* (/ h 3) (sum-index mapper 0 n))
+)
+```
+
+The answers:  
+```
+(simpson-integral cube 0 1 100)
+; 1/4
+(simpson-integral cube 0 1 1000)
+; 1/4
+```
+Interesting…  
+
+<br>
+
+### Exercise 1.30
+
+Rewrite the procedure `sum` as an iterative process:  
+```scheme
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
+```
+
+<br>
+
+### Exercise 1.31
+
+> … Write an analogous procedure called `product` that returns the product of the values of a function at points over a given range.  
+```scheme
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a)
+         (product term (next a) next b))))
+```
+
+> Show how to define factorial in terms of product.  
+```scheme
+(define (factorial n)
+  (define (identity x) x)
+  (define (addOne x) (+ x 1))
+  (product identity 1 addOne n))
+```
+
+> Also use product to compute approximations to 𝜋 using the formula:  
+![pi-approximation-john-wallis](part1/pi-approximation-john-wallis.jpg)
+```scheme
+(define (pi-approx p)
+  (define (numerator x)
+    (+ (if (even? x)
+           x
+           (+ x 1))
+       2))
+  (define (denominator x)
+    (+ (if (even? x)
+           x
+           (- x 1))
+       3))
+  (define (term x)
+    (/ (numerator x)
+       (denominator x)))
+  (define (addOne x) (+ x 1))
+  (product term 0 addOne p))
+```
+
+Rewrite `product` so that it is performed iteratively:  
+```scheme
+(define (product-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* (term a) result))))
+  (iter a 1))
+```
+
+<br>
+
+### Exercise 1.32
+
+> Show that `sum` and `product` are both special cases of a still more general notion called `accumulate` … Write `accumulate` and show how `sum` and `product` can both be defined as simple calls to `accumulate`.  
+```scheme
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))
+```
+
+Rewrite `accumulate` so that it is performed iteratively:  
+```scheme
+(define (accumulate-iter combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+```
+
+<br>
+
+### Exercise 1.33
+
+> You can obtain an even more general version of accumulate, by introducing the notion of a filter on the terms to be combined …  
+```scheme
+(define (filtered-accumulate combiner null-value predicate
+                             term a next b)
+  (if (predicate a b)
+      null-value
+      (combiner (term a)
+                (filtered-accumulate combiner null-value predicate
+                                     term (next a) next b))))
+```
+
+> Show how to express the following using `filter-accumulate` …  
+
+- The sum of the squares of the prime numbers in the interval a to b:  
+```scheme
+(define (sum-of-squares-of-prime a b)
+  (filtered-accumulate + 0 prime? square a addOne b))
+```
+
+- The product of all the positive integers less than n that are relatively prime to n (i.e., all positive integers `i < n` such that `GCD(i, n) = 1`):  
+```scheme
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+(define (fff n)
+  (define (relatively-prime? a)
+    (= (gcd a n) 1))
+  (filtered-accumulate * 1 relatively-prime?
+                       identity 1 addOne (- n 1)))
+```
+
+EZ  
