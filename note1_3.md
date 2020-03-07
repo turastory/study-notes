@@ -253,4 +253,72 @@ Rewrite `accumulate` so that it is performed iteratively:
                        identity 1 addOne (- n 1)))
 ```
 
-EZ  
+<br>
+
+### Chapter 1.3.2 Constructing Procedures Using lambda
+
+> … it would be more convenient to have a way to directly specify “the procedure that returns its input incremented by 4” and “the procedure that returns the reciprocal of its input times its input plus 2.” We can do this by introducing the special form **lambda**, which creates procedures.  
+
+- lambda is a special form. It creates a procedure.  
+- So the name comes from lambda calculus, which is introduced by Alonzo Church.  
+
+> In general, lambda is used to create procedures in the same way as define, except that no name is specified for the procedure:  
+
+```scheme
+(lambda ([formal-parameters]) [body])
+```
+
+> The resulting procedure is just as much a procedure as one that is created using `define`. The only difference is that it has not been associated with any name in the environment.  
+
+```scheme
+(define (plus4 x) (+ x 4))
+=
+(define plus4 (lambda (x) (+ x 4)))
+```
+
+- Basically `define` and `lambda` creates the same procedure.  
+- Recall that defining a procedure actually does 2 tasks: “Observe that there are two different operations being combined here: we are creating the procedure, and we are giving it the name square.” (from 1.1.5)  
+- lambda only creates a procedure, while define creates and gives a name to the procedure.  
+
+> Like any expression that has a procedure as its value, a lambda expression can be used as the operator in a combination … or more generally, any context where we would normally use a procedure name.  
+
+- We can use a procedure created by lambda just like any other procedures.  
+
+<br>
+
+> Another use of lambda is in creating local variables … we could use a lambda expression to specify an anonymous procedure for binding the local variables:  
+```scheme
+; a = 1 + xy, b = 1 - y. f(x,y) = xa^2 + yb + ab
+(define (f x y)
+  ((lambda (a b)
+    (+ (* x (square a))
+       (* y b)
+       (* a b)))
+  (+ 1 (* x y))
+  (- 1 y)))
+```
+
+> This construct is so useful that there is a special form called **let** to make its use more convenient. Using let, the f procedure could be written as:  
+```scheme
+(define (f x y) (let ((a (+ 1 (* x y)))
+        (b (- 1 y)))
+    (+ (* x (square a))
+       (* y b)
+       (* a b))))
+```
+
+> The general form of a let expression is:  
+```
+(let ((⟨var1⟩ ⟨exp1⟩)
+      (⟨var2⟩ ⟨exp2⟩)
+      ...
+      (⟨varn⟩ ⟨expn⟩))
+    ⟨body⟩)
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. So how `let` expression works? Is it just a syntactic sugar for lambda with local variables?  
+
+- Yes. The author says…  
+> No new mechanism is required in the interpreter in order to provide local variables. A `let` expression is simply syntactic sugar for the underlying lambda application.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. So what are these all about? Just for convenience? Or does it have another meaning?  
