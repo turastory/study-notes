@@ -88,7 +88,7 @@ We can express this directly as a procedure:
 
 <br>
 
-### Exercise 1.29
+###### Exercise 1.29
 
 Simpson’s Rule - The integral of a function f between a and b is approximated as:  
 ```
@@ -129,7 +129,7 @@ Interesting…
 
 <br>
 
-### Exercise 1.30
+###### Exercise 1.30
 
 Rewrite the procedure `sum` as an iterative process:  
 ```scheme
@@ -143,7 +143,7 @@ Rewrite the procedure `sum` as an iterative process:
 
 <br>
 
-### Exercise 1.31
+###### Exercise 1.31
 
 > … Write an analogous procedure called `product` that returns the product of the values of a function at points over a given range.  
 ```scheme
@@ -163,7 +163,7 @@ Rewrite the procedure `sum` as an iterative process:
 ```
 
 > Also use product to compute approximations to 𝜋 using the formula:  
-![pi-approximation-john-wallis](part1/pi-approximation-john-wallis.jpg)
+![pi-approximation-john-wallis](part1/pi-approximation-john-wallis.jpg)  
 ```scheme
 (define (pi-approx p)
   (define (numerator x)
@@ -195,7 +195,7 @@ Rewrite `product` so that it is performed iteratively:
 
 <br>
 
-### Exercise 1.32
+###### Exercise 1.32
 
 > Show that `sum` and `product` are both special cases of a still more general notion called `accumulate` … Write `accumulate` and show how `sum` and `product` can both be defined as simple calls to `accumulate`.  
 ```scheme
@@ -218,7 +218,7 @@ Rewrite `accumulate` so that it is performed iteratively:
 
 <br>
 
-### Exercise 1.33
+###### Exercise 1.33
 
 > You can obtain an even more general version of accumulate, by introducing the notion of a filter on the terms to be combined …  
 ```scheme
@@ -252,6 +252,12 @@ Rewrite `accumulate` so that it is performed iteratively:
   (filtered-accumulate * 1 relatively-prime?
                        identity 1 addOne (- n 1)))
 ```
+
+<br>
+
+###### Summary
+- We’ve learned what higher-order procedure means.  
+- We’ve investigated various ways to abstract not only a specific behavior, but also the structures behinds various procedures.  
 
 <br>
 
@@ -322,3 +328,60 @@ Rewrite `accumulate` so that it is performed iteratively:
 > No new mechanism is required in the interpreter in order to provide local variables. A `let` expression is simply syntactic sugar for the underlying lambda application.  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. So what are these all about? Just for convenience? Or does it have another meaning?  
+
+1. It makes variables locally as possible. Consider the following code snippet that uses `define` to define a local variable.  
+```scheme
+(define x 5)
+(+ (* x 4) x)
+; 25
+```
+- In this case, if the name `x` already exists, then we may lose that name-expression mapping in the environment - which potentially has a chance to behave unexpectedly later. So we should care about the name of the variable, and even if we do so, there’s potential risks to do this way.  
+- With `let` expression (Of course it is a special form) you can define a variable without regarding the enclosing environment:  
+```scheme
+(define x 3)
+(+ (let ((x 5))
+     (* x 4))
+  x)
+; 23
+```
+- In this example, the value of the existing variable `x` is preserved.  
+- So the scope of a variable specified by `let` expression is equivalent to the body of the `let`.  
+
+> Sometimes we can use internal definitions to get the same effect as with `let`. We prefer, however, to use `let` in situations like this and to use internal `define` only for internal procedures.  
+
+<br>
+
+###### Exercise 1.34
+
+> Suppose we define the procedure:  
+```scheme
+(define (f g) (g 2))
+```
+
+> What happens if we ask the interpreter to evaluate the combination?  
+
+Speculation:  
+- As the interpreter evaluates expressions in an applicative-order, the expression `(f f)` evaluates like this:  
+```scheme
+(f f)
+(f 2)
+(2 2) ; There's nothing to break down.
+```
+- Does it make a list? I’m not sure because I don’t know much about Scheme, but at least it does not fall into an infinite loop, or throw an error.  
+
+Test:  
+- It prints a message - `The object 2 is not applicable.`  
+- I think the evaluation process is correct, and for `(2 2)`, since 2 is not a operator or a procedure, It throws an error message like that.  
+- In the message above, we can observe 2 things. 1) `2` is considered as an object in the interpreter. It is not a number or a string..? 2) It says `not applicable` and does not say something like `is not a procedure` or so.  
+- So from the interpreter’s perspective, it doesn’t matter whether an object is a number or a string. The only thing that the interpreter matters is `applicability` - If there’s an object `2` that is applicable, it may not throw an error.  
+- But.. defining `2` as a variable is not possible so we don’t need to think about it anyway..  
+
+<br>
+
+### Chapter 1.3.3. Procedures as General Methods
+
+> We introduced **compound procedures** in Section 1.1.4 as a mechanism for **abstracting patterns of numerical operations** so as to make them independent of the particular numbers involved. With **higher-order procedures**, such as the integral procedure of Section 1.3.1, we began to see a more powerful kind of abstraction: **procedures used to express general methods of computation, independent of the particular functions involved**. In this section we discuss **two more elaborate examples— general methods for finding zeros and fixed points of functions—**and show how these methods can be expressed directly as procedures.  
+
+- We introduced two kinds of methods of abstraction: **compound procedure** and **higher-order procedure**  
+- We’ll cover 2 additional examples.  
+
