@@ -42,3 +42,68 @@
 (define (sqrt-mine x)
   (fixed-point (lambda (y) (average y (/ x y)))
                1.0))
+
+; Exercise 1.35
+(define golden-ratio
+  (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+
+; Exercise 1.36
+(define (fixed-point-print f first-guess)
+  (define (try guess)
+    (newline)
+    (display guess)
+    (let ((value (f guess)))
+      (if (close-enough? guess value)
+          value
+          (try value))))
+  (try first-guess))
+
+(define (xx1000-without-damping)
+  (fixed-point-print (lambda (x) (/ (log 1000) (log x))) 3))
+
+(define (xx1000-with-damping)
+  (fixed-point-print (lambda (x) (average x (/ (log 1000) (log x)))) 3))
+
+; Exercise 1.37.a
+(define (cont-frac n d k)
+  (define (f i)
+    (if (> i k)
+        0
+        (/ (n i)
+           (+ (d i) (f (+ i 1))))))
+  (f 1))
+
+(define (reciprocal-golden-ratio precision)
+  (cont-frac (lambda (i) 1.0)
+             (lambda (i) 1.0)
+             precision))
+
+; Exercise 1.37.b
+(define (cont-frac-iter n d k)
+  (define (f i result)
+    (if (= i 0)
+        result
+        (f (- i 1)
+           (/ (n i) (+ (d i) result)))))
+  (f k 0))
+
+; Exercise 1.38
+(define (euler-expansion precision) 
+  (cont-frac (lambda (i) 1.0)
+             (lambda (i) 
+               (if (= (remainder (+ i 1) 3) 0)
+                   (let ((exponent (/ (+ i 1) 3)))
+                     (expt 2 exponent))
+                   1))
+             precision))
+(define (natural-constant precision) (+ (euler-expansion precision) 2))
+
+; Exercise 1.39
+(define (tan-cf x k)
+  (cont-frac (lambda (i) 
+               (if (= i 1)
+                   x
+                   (- (expt x 2))))
+             (lambda (i)
+               (- (* i 2.0) 1.0))
+             k))

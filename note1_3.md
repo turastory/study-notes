@@ -306,7 +306,8 @@ Rewrite `accumulate` so that it is performed iteratively:
 
 > This construct is so useful that there is a special form called **let** to make its use more convenient. Using let, the f procedure could be written as:  
 ```scheme
-(define (f x y) (let ((a (+ 1 (* x y)))
+(define (f x y) 
+  (let ((a (+ 1 (* x y)))
         (b (- 1 y)))
     (+ (* x (square a))
        (* y b)
@@ -384,4 +385,131 @@ Test:
 
 - We introduced two kinds of methods of abstraction: **compound procedure** and **higher-order procedure**  
 - We’ll cover 2 additional examples.  
+
+<br>
+
+###### Exercise 1.35
+
+> Show that the golden ratio φ is a fixed point of the transformation x -> 1 + 1/x, and use this fact to compute φ by means of the fixed-point procedure.  
+
+- We can easily formulate the transformation from the definition of the golden ratio:  
+```
+φ^2 = φ + 1
+φ = (φ + 1) / φ		divided by φ
+φ = 1 + 1 / φ        resolve the parentheses
+```
+
+- We can translate this in Scheme in a natural way:  
+```scheme
+(define (fixed-point f first-guess)
+  (define (try guess)
+    (let ((value (f guess)))
+      (if (close-enough? guess value)
+          value
+          (try value))))
+  (try first-guess))
+
+(define golden-ratio
+  (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+golden-ratio ; 1.6180327868852458
+```
+
+<br>
+
+###### Exercise 1.36
+
+> Modify `fixed-point` so that it prints the sequence of approximations it generates:  
+```scheme
+(define (fixed-point-print f first-guess)
+  (define (try guess)
+    (newline)       ; added
+    (display guess) ; added
+    (let ((value (f guess)))
+      (if (close-enough? guess value)
+          value
+          (try value))))
+  (try first-guess))
+```
+
+> Then find a solution to `x^x = 1000` by finding a fixed point of `x → log(1000) / log(x)`. Compare the number of steps this takes with and without **average damping**:  
+```scheme
+(define (xx1000-without-damping)
+  (fixed-point-print (lambda (x) (/ (log 1000) (log x))) 3))
+(define (xx1000-with-damping)
+  (fixed-point-print (lambda (x) (average x (/ (log 1000) (log x)))) 3))
+
+(xx1000-without-damping) ; Number of steps: 32
+(xx1000-with-damping) ; Number of steps: 8
+```
+
+<br>
+
+###### Exercise 1.37
+
+![k-term-finite-continued-fraction](part1/k-term-finite-continued-fraction.jpg)  
+> Define a procedure `cont-frac` which computes the value of the k-term finite continued fraction:  
+```scheme
+(define (cont-frac n d k)
+  (define (f i)
+    (if (> i k)
+        0
+        (/ (n i)
+           (+ (d i) (f (+ i 1))))))
+  (f 1))
+```
+
+> Check your procedure by approximating 1/φ. How large must you make k in order to get an approximation that is accurate to 4 decimal places?  
+```scheme
+(define (reciprocal-golden-ratio precision)
+  (cont-frac (lambda (i) 1.0)
+             (lambda (i) 1.0)
+             precision))
+```
+- We can get 11 as the answer, by testing with the procedure above.  
+- Here’s a procedure that generates an iterative process instead of a recursive process:  
+```scheme
+(define (cont-frac-iter n d k)
+  (define (f i result)
+    (if (= i 0)
+        result
+        (f (- i 1)
+           (/ (n i) (+ (d i) result)))))
+  (f k 0))
+```
+- Note that unlike the recursive solution, index `i` goes down from `k` to `1`. This is because, if we start from 1 then there’s no way to know the second term of the denominator unless do a recursion, as you can see in the definition of k-term finite continued fraction.  
+- We know `N_k / D_k`, so starting from here we build a chain of successive fractions.  
+
+<br>
+
+###### Exercise 1.38
+
+> In 1737, the Swiss mathematician Leonhard Euler published a memoir *De Fractionibus Continuis*, which included a continued fraction expansion for `e − 2`, where `e` is the base of the natural logarithms. In this fraction, the `N_i` are all 1, and the `D_i` are successively `1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, ...`. Write a program that uses your `cont-frac` procedure from Exercise 1.37 to approximate `e`, based on Euler’s expansion:  
+```scheme
+(define (euler-expansion precision) 
+  (cont-frac (lambda (i) 1.0)
+             (lambda (i) 
+               (if (= (remainder (+ i 1) 3) 0)
+                   (let ((exponent (/ (+ i 1) 3)))
+                     (expt 2 exponent))
+                   1))
+             precision))
+(define (natural-constant precision) (+ (euler-expansion precision) 2))
+```
+
+<br>
+
+###### Exercise 1.39
+
+![lamberts-tangent](part1/lamberts-tangent.jpg)  
+> Define a procedure `(tan-cf x k)` that computes an approximation to the tangent function based on Lambert’s formula:  
+```scheme
+(define (tan-cf x k)
+  (cont-frac (lambda (i) 
+               (if (= i 1)
+                   x
+                   (- (expt x 2))))
+             (lambda (i)
+               (- (* i 2.0) 1.0))
+             k))
+```
 
