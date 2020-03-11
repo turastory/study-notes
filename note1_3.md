@@ -513,3 +513,42 @@ golden-ratio ; 1.6180327868852458
              k))
 ```
 
+<br>
+
+### Chapter 1.3.4 Procedures as Returned Values
+
+> The above examples demonstrate how the ability to pass procedures as arguments significantly enhances the expressive power of our program- ming language. We can achieve even more expressive power by creating procedures whose returned values are themselves procedures.  
+
+- We have seen procedures that take a procedure as an argument. Now we’ll see procedures that return a procedure, as its return value.  
+
+```scheme
+(define (average-damp f)   (lambda (x) (average x (f x))))
+
+((average-damp square) 10) ; aveage-damp itself makes a procedure.
+```
+
+> Observe that this is a combination whose operator is itself a combination. Exercise 1.4 already demonstrated the ability to form such combinations, but that was only a toy example. Here we begin to see the real need for such combinations—when applying a procedure that is obtained as the value returned by a higher-order procedure.  
+
+> As programmers, we should be alert to opportunities to identify the underlying abstractions in our programs and to build upon them and generalize them to create more powerful abstractions … it is important to be able to think in terms of these abstractions, so that we can be ready to apply them in new contexts.  
+
+- Using higher-order procedures, we can handle higher abstractions just like other computational elements.  
+
+> In general, programming languages **impose restrictions** on the ways in which computational elements can be manipulated. Elements with the fewest restrictions are said to have **first-class** status. Some of the “rights and privileges” of first-class elements are:  
+- They may be named by variables.  
+- They may be passes as arguments to procedures.  
+- They may be returned as the results of procedures.  
+- They may be included in data structures.  
+
+> Lisp, unlike other common programming languages, awards procedures full first-class status. This poses challenges for efficient implementation, but the resulting gain in expressive power is enormous.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What are some examples of the challenges when we want our procedures to have first-class status?  
+
+- Since the procedures are also variables, they need to be stored somewhere.  
+- Maybe we also need to support some “function type”.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. Newton’s method?  
+
+<br>
+
+Next: Review the chapter 1.3.4 and do the exercises.  
+
