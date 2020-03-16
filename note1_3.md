@@ -539,6 +539,13 @@ golden-ratio ; 1.6180327868852458
 - They may be returned as the results of procedures.  
 - They may be included in data structures.  
 
+- This is a new perspective to view computational elements - “Programming languages impose restrictions…”  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What are some other elements that do not have first-class status?  
+
+- reserved keywords like if-else, when, import, etc. in Kotlin. Functions can be a variable with an aid of special syntax.  
+- I guess all elements in Lisp other than parens and spaces are all first-class..  
+
 > Lisp, unlike other common programming languages, awards procedures full first-class status. This poses challenges for efficient implementation, but the resulting gain in expressive power is enormous.  
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What are some examples of the challenges when we want our procedures to have first-class status?  
@@ -546,9 +553,42 @@ golden-ratio ; 1.6180327868852458
 - Since the procedures are also variables, they need to be stored somewhere.  
 - Maybe we also need to support some “function type”.  
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. Newton’s method?  
+> Newton’s method: If x -> g(x) is a differentiable function, then a solution of the equation g(x) = 0 is a fixed point of the function x -> f(x), where `f(x) = x - g(x) / Dg(x)` and Dg(x) is the derivative of g evaluated at x.  
+> Newton’s method is the use of the fixed-point method we saw above to approximate a solution of the equation by finding a fixed point of the function f.  
 
 <br>
 
-Next: Review the chapter 1.3.4 and do the exercises.  
+###### Exercise 1.40
+
+> Define a procedure `cubic` that can be used together with the newtons-method procedure in expressions of the form, to approximate zeros of the cubic `x^3 + ax^2 + bx + c`:  
+```scheme
+(newtons-method (cubic a b c) 1)
+```
+
+- The problem asks what `cubic` procedure looks like. As newtons-method takes a procedure as its argument, the returned value of the expression `(cubic a b c)` should be a procedure.  
+- So `cubic` procedure is a higher-order procedure, that takes the coefficients and return a new procedure `x^3 + ax^2 + bx + c`, with the input value `x`.  
+```scheme
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))
+```
+
+<br>
+
+###### Exercise 1.41
+
+> Define a procedure `double` that takes a procedure of one argument as argument, and returns a procedure that applies the original procedure twice.  
+> What value is returned by the following expression?:  
+```scheme
+(((double (double double)) inc) 5)
+```
+
+- First let’s define the procedure `double`. We can formulate this procedure like this - `g(x) = f(f(x))`, where f is a procedure that is passed as an argument.  
+```scheme
+(define (double f) (lambda (x) (f (f x))
+```
+
+- As the procedure `double` is also a procedure that takes one argument, it can provided as an argument to itself.  
+- Think of a function `h(x) = g(g(x))`. This can be rewritten using f instead of g: `h(x) = f(f(f(f(x))))`  
+- As you’ve noticed, applying the procedure `double` n times gives a procedure that applies the original procedure `2^(2^(n-1))` times.  
+- So the returned procedure of this expression `((double (double double)) inc)` should increment the input value by `2^(2^2)` - **16**  
 
