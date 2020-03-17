@@ -592,3 +592,136 @@ golden-ratio ; 1.6180327868852458
 - As you’ve noticed, applying the procedure `double` n times gives a procedure that applies the original procedure `2^(2^(n-1))` times.  
 - So the returned procedure of this expression `((double (double double)) inc)` should increment the input value by `2^(2^2)` - **16**  
 
+<br>
+
+###### Exercise 1.42
+
+> Define a procedure `compose` that implements composition.  
+```scheme
+(define (compose f g)
+  (lambda (x) (f (g x))))
+```
+
+<br>
+
+###### Exercise 1.43
+
+> Write a procedure that takes as inputs a procedure that computes f and a positive integer n and returns the procedure that computes the nth repeated application of f.  
+
+- We can use `compose` function from Exercise 1.42.  
+- This can be written in two ways - recursive or iterative.  
+```scheme
+(define (repeated g n)
+  (if (= n 1)
+    g
+    (compose g (repeated g (- n 1)))))
+```
+
+<br>
+
+###### Exercise 1.44
+
+> If f is a function and dx is some small number, then the smoothed version of f is the function whose value at point x is the average of f(x - dx), f(x), f(x + dx).  
+> Write a procedure smooth that takes as input a procedure that computes f and returns a procedure that computes the smoothed f.  
+```scheme
+(define (smooth f)
+  (let ((dx 0.1))
+    (lambda (x) (/ (+ (f (- x dx))
+                      (f x)
+                      (f (+ x dx)))
+                   3.0))))
+```
+
+> Show how to generate the n-fold smoothed function of any given function using `smooth` and `repeated` from Exercise 1.43.  
+- Repeatedly smoothing a function n times will give n-fold smoothed function. Showing this concept is straightforward in Lisp:  
+- One thing to be aware is the argument of lambda is expected to be a procedure.  
+```scheme
+(define (n-fold-smooth n)
+  (lambda (f) ((repeated smooth n) f)))
+```
+
+<br>
+
+###### Exercise 1.45
+
+> Single average damping is not enough to make a fixed point search for y -> x/y^3 converge. (Fourth roots) On the other hand, if we average damp twice, the fixed-point search does converge …  
+> Do some experiments to determine how many average damps are required to compute nth roots as a fixed-point search based upon repeated average damping of y -> x/y^(n-1) …  
+> Implement a simple procedure ford computing nth roots using `fixed-point`, `average-damp`, and `repeated` procedure of Exercise 1.43.  
+
+- It seems like we need average damping `n-2` times for computing `n`th roots. Here’s the answer:  
+```scheme
+(define (nth-root n)
+  (lambda (x)
+    (define mapping (lambda (y) (/ x (expt y (- n 1)))))
+    (define mapping-damped ((repeated average-damp (- n 2)) mapping))
+    (fixed-point (lambda (y) (mapping-damped y)) 1.0)))
+```
+
+- Note that It returns a procedure that takes a number and returns n-th roots of it. So there’s lambda at the very beginning of the code.  
+- `mapping` represents the original function to find a fixed point of. `x/y^(n-1)`  
+- `mapping-damped` representes repeatedly average damped version of `mapping`. This should be provided to `fixed-point` later.  
+- We can define roots procedures like this using `nth-root`:  
+```scheme
+(define (cube-root x)
+  ((nth-root 3) x))
+(define (fourth-root x)
+  ((nth-root 4) x))
+```
+
+<br>
+
+###### Exercise 1.46
+
+> Several of the numerical methods described in this chapter are instances of an extremely general computational strategy known as iterative improvement. **Iterative improvement** says that, to compute something, we start with an initial guess for the answer, test if the guess is good enough, and otherwise improve the guess and continue the process using the improved guess as the new guess …  
+> Write a procedure `iterative-improve` that takes two procedures as arguments: a method for telling whether a guess is good enough and a method for improving a guess. `iterative-improve` should return as its value a procedure that takes a guess as argument and keeps improving the guess until it is good enough.  
+```scheme
+(define (iterative-improve p? imp)
+  (define (f guess)
+    (if (p? guess)
+        guess
+        (f (imp guess))))
+  f)
+```
+
+> Rewrite the `sqrt` procedure of Section 1.1.7 and the `fixed-point` procedure of Section 1.3.3 in terms of `iterative-improve`.  
+>  
+- sqrt original version:  
+```scheme
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+    guess
+    (sqrt-iter (improve guess x) x)))
+(define (improve guess x) (average guess (/ x guess)))
+(define (good-enough? guess x)   (< (abs (- (square guess) x)) 0.001))
+(define (sqrt x) (sqrt-iter 1.0 x))
+```
+- sqrt new version:  
+```scheme
+(define (sqrt-iterative x)
+  ((iterative-improve (lambda (guess) (< (abs (- (square guess) x)) 0.001))
+                      (lambda (guess) (average guess (/ x guess))))
+   1.0))
+```
+
+- fixed-point original version:  
+```scheme
+(define tolerance 0.00001)
+(define (close-enough? a b) (< (abs (- a b)) tolerance))
+(define (fixed-point f first-guess)
+  (define (try guess)
+    (let ((value (f guess)))
+      (if (close-enough? guess value)
+          value
+          (try value))))
+  (try first-guess))
+```
+- fixed-point new version:  
+```scheme
+(define (fixed-point-iterative f first-guess)
+  ((iterative-improve (lambda (guess) (< (abs (- guess (f guess))) tolerance))
+                      (lambda (guess) (f guess)))
+   first-guess))
+```
+
+And this is the end of the part 1!
+

@@ -109,6 +109,9 @@
              k))
 
 ; Chapter 1.3.4
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
 (define dx 0.00001)
 (define (deriv g)
   (lambda (x) (/ (- (g (+ x dx)) (g x)) dx)))
@@ -127,3 +130,58 @@
 
 ; Exercise 1.41
 (define (double f) (lambda (x) (f (f x))))
+
+; Exercise 1.42
+(define (compose f g)
+  (lambda (x) (f (g x))))
+
+; Exercise 1.43
+(define (repeated g n)
+  (if (= n 1)
+    g
+    (compose g (repeated g (- n 1)))))
+
+; Exercise 1.44
+(define (smooth f)
+  (let ((dx 0.1))
+    (lambda (x) (/ (+ (f (- x dx)) 
+                      (f x) 
+                      (f (+ x dx)))
+                   3.0))))
+
+(define (n-fold-smooth n)
+  (lambda (f) ((repeated smooth n) f)))
+
+; evaluation results with ((n-fold-smooth 2) floor):
+; 1.8  1.9  2.0  2.1  2.2
+; 1    1    2    2    2
+; 1    1.33 1.66 2    2
+; 1.11 1.33 1.66 1.88 2
+
+; Exercise 1.45
+(define (nth-root n)
+  (lambda (x)
+    (define mapping (lambda (y) (/ x (expt y (- n 1)))))
+    (define mapping-damped ((repeated average-damp (- n 2)) mapping))
+    (fixed-point (lambda (y) (mapping-damped y)) 1.0)))
+
+; Exercise 1.46
+(define (iterative-improve p? imp)
+  (define (f guess)
+    (if (p? guess)
+        guess
+        (f (imp guess))))
+  f)
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+(define (sqrt-iterative x)
+  ((iterative-improve (lambda (guess) (< (abs (- (square guess) x)) 0.001))
+                      (lambda (guess) (average guess (/ x guess))))
+   1.0))
+
+(define (fixed-point-iterative f first-guess)
+  ((iterative-improve (lambda (guess) (< (abs (- guess (f guess))) tolerance))
+                      (lambda (guess) (f guess)))
+   first-guess))
