@@ -20,3 +20,14 @@ By using compound data, we can:
 
 - **Data abstraction: Separating data representation and data usage**  
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What is “expressive power” of the language?  
+
+> … This same example shows why it is important that our programming language provide the **ability to manipulate compound objects directly**: Without this, there is no way for a procedure such as linear-combination to pass its arguments along to add and mul **without having to know their detailed structure.**  
+
+- I think it means we only concern about the expression of the logic, and give much less attention to how the logic actually works.  
+- In short, “expressive power” of the language is what the language provides as means of abstraction.  
+
+> We will see that the key to forming compound data is that a programming language should provide some kind of **glue** so that data objects can be combined to form more complex data objects.  
+
+Introduction to data abstraction and abstraction barriers -> Different ways to form compound data -> key ideas (closure, conventional interfaces) -> symbolic expressions -> generic operations -> data-directed programming  
+
