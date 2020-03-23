@@ -94,3 +94,98 @@ We can change the behavior of further procedures like additions or multiplicatio
       (cons (/ num g) (/ den g)))))
 ```
 
+<br>
+
+### Chapter 2.1.2 Abstraction Barriers
+
+> In general, the underlying idea of data abstraction is to identify for each type of data object a basic set of operations in terms of which all manipulations of data objects of that type will be expressed, and then to use only those operations in manipulating the data.  
+
+- Key idea: Define some set of operations to manipulate the data for a data object, and then use only those operations.  
+
+> We can envision the structure of the rational-number system as shown in Figure 2.1.
+![abstraction-barrier](part2/abstraction-barrier.jpg)
+
+> The horizontal lines represent **abstraction barriers** that isolate different **levels** of the system. At each level, the barrier separates the programs (above) that use the data abstraction from the programs (below) that implement the data abstraction.  
+> Programs that use rational numbers manipulate them solely in terms of the procedures supplied “for public use” by the rational-number package …  
+> In effect, procedures at each level are the **interfaces** that define the abstraction barriers and connect the different levels.  
+
+- **The barrier separates the program that use the data abstraction from the programs that implement the data abstraction**  
+- It reminds me clean architecture. Is clean architecture - layered architecture also forms an abstraction barriers between layers? My answer: Of course! Each layer defines an interface, and another module which depends on the previous module implements that interface. In this case, the first layer uses the abstraction, and the latter implements the abstraction.  
+- Procedures are interfaces that 1) define the abstraction barriers and 2) connect the different levels.  
+
+> This simple idea has many advantages. One advantage is that it makes programs much easier to maintain and to modify. Any complex data structure can be represented in a variety of ways with the primitive data structures provided by a programming language.  
+> Of course, the choice of representation influences the programs that operate on it; thus if the representation were to be changed at some later time, all such programs might have to be modified accordingly. This task could be time-consuming and expensive in the case of large programs unless **the dependence on the representation were to be confined by design to a very few program modules**.  
+
+- We can get an advantage of data abstraction by constraining the dependence on the representation to a few interface procedures.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What is “dependence on the representation”?  
+
+- Let’s clarify the terms. “Representation” means the representation of compound data - how the data is implemented.  
+- So constraining dependence on the representation means you should make few parts of the system depend on the implementation of compound data.  
+- Although there are no OOP concepts like inheritance or interface, we can make a system that is highly modularized, and easy to be modified.  
+- It is shown as strategy pattern, in terms of design patterns.  
+
+<br>
+
+###### Exercise 2.2
+
+First we need constructor and selector procedures for both point and segment. This can be done simply by referring each procedure to primitive procedures:  
+```
+(define make-segment cons)
+(define start-segment car)
+(define end-segment cdr)
+(define make-point cons)
+(define x-point car)
+(define y-point cdr)
+```
+
+Then we can implement `midpoint-segment` using the constructors and the selectors above, with additional operations on top of them:  
+```scheme
+(define (add-point p1 p2)
+  (make-point (+ (x-point p1) (x-point p2))
+              (+ (y-point p1) (y-point p2))))
+(define (div-point p num)
+  (make-point (/ (x-point p) num)
+              (/ (y-point p) num)))
+(define (midpoint-segment line)
+  (let ((start (start-segment line))
+        (end (end-segment line)))
+    (div-point (add-point start end) 2)))
+```
+
+<br>
+
+###### Exercise 2.3
+
+> Implement a representation for rectangles in a plane. In terms of your constructors and selectors, create procedures that compute the perimeter and the area of a given rectangle.  
+> Now implement a different representation for rectangles. Can you design your system with suitable abstraction barriers, so that the same perimeter and area procedures will work using either representation?  
+
+First let’s implement the representation for rectangles using two points - top-left, and bottom-right. In this case, the constructor is easily defined but selectors are a little bit complicated:  
+```scheme
+(define (sub-point p1 p2)
+  (make-point (- (x-point p1) (x-point p2))
+              (- (y-point p1) (y-point p2))))
+(define (make-rect p1 p2) (cons p1 p2))
+(define (width-rect r)
+  (abs (x-point (sub-point (car r) (cdr r)))))
+(define (height-rect r)
+  (abs (y-point (sub-point (car r) (cdr r)))))
+```
+
+Procedures that compute perimeter and area are like this:  
+```scheme
+(define (perimeter-rect r)
+  (+ (* 2 (width-rect r))
+     (* 2 (height-rect r))))
+(define (area-rect r)
+  (* (width-rect r) (height-rect r)))
+```
+
+The procedures above (perimeter and area) remain unchanged even if constructor and selector changes - the representation of rectangle changes.  
+Maybe we can represent a rectangle with a top-left point, width and height:  
+```scheme
+(define (make-rect p w h) (cons (cons w h) p))
+(define (width-rect r) (car (car r)))
+(define (height-rect r) (cdr (car r)))
+```
+
