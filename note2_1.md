@@ -189,3 +189,47 @@ Maybe we can represent a rectangle with a top-left point, width and height:
 (define (height-rect r) (cdr (car r)))
 ```
 
+<br>
+
+### Chapter 2.1.3
+
+> But exactly what is meant by data? It is not enough to say “whatever is implemented by the given selectors and constructors.” Clearly, not every arbitrary set of three procedures can serve as an appropriate basis for the rational-number implementation.  
+
+- So what is DATA? What characterizes the selectors and constructors in terms of data objects?  
+
+> … `make-rat`, `numer`, and `denom` must satisfy the condition that, for any integer n and any non-zero integer d, if x is `(make-rat n d)`, then `(numer x) / (denom x)` = `n / d`. In fact, this is the only **condition** `make-rat`, `numer` and `denom` **must fulfill** in order to form a suitable basis for a rational-number representation.  
+
+- There’s a condition to fulfill in order to form a data object.  
+
+> In general, we can think of data as **defined by some collection of selectors and constructors**, together **with specified conditions** that these procedures must fulfill in order to be a valid representation.  
+> This point of view can serve to define not only “high-level” data objects, such as rational numbers, but lower-level objects as well … the only thing we need to know about these three operations is that if we glue two objects together using `cons` we can retrieve the objects using `car` and `car`. That is, the operations satisfy the condition that, for any objects `x` and `y`, if `z` is `(cons x y)` then `(car z)` is `x` and `(cdr z)` is `y`.  
+
+```scheme
+(define (cons x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1: CONS" m))))
+    dispatch)
+(define (car z) (z 0))
+(define (cdr z) (z 1))
+```
+
+- What’s surprising to me is the fact that **data** is defined in terms of selectors and constructors - the procedures. When we first think of data, we usually imagine some model class or database table, persistence storage.  
+- Also this statements looks like the concepts of product in Category theory: “for any objects `x` and `y`, if there’s an object `z` that fulfills some structure - pattern beneath it, then `z` is something.”  
+- What’s unclear is the condition. which condition makes the representation valid? Let’s discuss further by reviewing the following quotes:  
+
+> In general, abstract models define new kinds of data objects in terms of previously defined types of data objects. **Assertions about data objects can therefore be checked by reducing them to assertions about previously defined data objects**.  
+
+- Reducing assertions about high-level abstractions to assertions about low-level abstractions…  
+- Then the conditions can be anything???  
+- Let’s think of rational numbers. Unlike just a pair or a point in coordinates, there’s special relationship between denominator and numerator. What about exponentiation? If we want to model exponentiation, then the resulting selectors and numerators must meets the conditions: `(base e)^(exp e) = base^e`  
+- So.. the condition gives a context or a meaning to the object by making constraints between them, or identifying some patterns between them.  
+
+> The subtle point to notice is that the value returned by `(cons x y)` is a procedure - namely the internally defined procedure `dispatch`, which takes one argument and return either `x` or `y` depending one whether the argument is 0 or 1 … if we access pairs using only `cons`, `car`, and `cdr` we cannot distinguish this implementation from one that uses “real” data structures.  
+> The procedural representation, although obscure, is a perfectly adequate way to represent pairs, since it fulfills the only conditions that pairs need to fulfill. This style of programming is often called **message passing**.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. Why “message passing”?  
+
+- Take a closer look at the definition of `cons` above. The internal procedure `dispatch` make a state machine for 0 and 1. the number 0 and 1 doesn’t have any meaning themselves, unless it is used as a sign or signal. I don’t know exact definition of *message*, but I guess “message” comes from the reasons above.  
+
