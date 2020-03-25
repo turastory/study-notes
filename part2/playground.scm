@@ -73,3 +73,24 @@
 (define (width-rect-alt r) (car (car r)))
 (define (height-rect-alt r) (cdr (car r)))
 
+; Exercise 2.5
+(define (cons a b)
+  (* (expt 2 a) (expt 3 b)))
+(define (product-access-with-base base)
+  (lambda (z)
+    (define (f value depth)
+      (if (= (remainder value base) 0)
+          (f (/ value base) (+ depth 1))
+          depth))
+    (f z 0)))
+(define (car z) ((product-access-with-base 2) z))
+(define (cdr z) ((product-access-with-base 3) z))
+
+; Exercise 2.6
+(define zero (lambda (f) (lambda (x) x)))
+(define (add-one n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+(define one (lambda (f) (lambda (x) (f x))))
+(define two (lambda (f) (lambda (x) (f (f x)))))
+(define (add a b)
+  (lambda (f) (lambda (x) ((a f) ((b f) x)))))

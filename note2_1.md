@@ -233,3 +233,115 @@ Maybe we can represent a rectangle with a top-left point, width and height:
 
 - Take a closer look at the definition of `cons` above. The internal procedure `dispatch` make a state machine for 0 and 1. the number 0 and 1 doesn’t have any meaning themselves, unless it is used as a sign or signal. I don’t know exact definition of *message*, but I guess “message” comes from the reasons above.  
 
+<br>
+
+###### Exercise 2.4
+
+> Verify that `(car (cons x y))` yields `x` for any objects `x` and `y`.  
+```scheme
+(define (cons x y)
+  (lambda (m) (m x y)))
+(define (car z)
+  (z (lambda (p q) p)))
+```
+
+- Let’s use substitution model to evaluate the expression `(car (cons x y))`:  
+```scheme
+(car (cons x y))
+(car (lambda (m) (m x y)))
+((lambda (m) (m x y)) (lambda (p q) p))
+((lambda (p q) p) x y)
+x
+```
+
+> What is the corresponding definition of `cdr`?  
+
+- We can easily yield `cdr` procedure from the definition of `car`:  
+```scheme
+(define (cdr z)
+  (z (lambda (p q) q)))
+```
+
+<br>
+
+###### Exercise 2.5
+
+> Show that we can represent pairs of nonnegative integers using only numbers and arithmetic operations if we represent the pair `a` and `b` as the integer that is the product `2^a * 3^b` . Give the corresponding definitions of the procedures cons, car, and cdr.  
+
+- Defining a constructor procedure is straightforward, but when it comes to selectors, it may seem confusing at first glance. We can use the fact that 2 and 3 are coprimes.  
+```scheme
+(define (cons a b)
+  (* (expt 2 a) (expt 3 b)))
+(define (car z)
+  (define (f value depth)
+    (if (= (remainder value 2) 0)
+        (f (/ value 2) (+ depth 1))
+        depth))
+  (f z 0)))
+(define (cdr z)
+  (define (f value depth)
+    (if (= (remainder value 3) 0)
+        (f (/ value 3) (+ depth 1))
+        depth))
+  (f z 0)))
+```
+
+- We can further extract the common patterns from the selectors like this:  
+```scheme
+(define (product-access-with-base base)
+  (lambda (z)
+    (define (f value depth)
+      (if (= (remainder value base) 0)
+          (f (/ value base) (+ depth 1))
+          depth))
+    (f z 0)))
+(define (car z) ((product-access-with-base 2) z))
+(define (cdr z) ((product-access-with-base 3) z))
+```
+
+<br>
+
+###### Exercise 2.6
+
+> In case representing pairs as procedures wasn’t mind-boggling enough, consider that, in a language that can manipulate procedures, we can get by without numbers (at least insofar as nonnegative integers are concerned) by implementing 0 and the operation of adding 1 as:  
+```scheme
+(define zero (lambda (f) (lambda (x) x)))
+(define (add-one n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+```
+> This representation is known as **Church numerals**, after its inventor, Alonzo Church, the logician who invented the Lambda calculus.  
+
+> Define `one` and `two` directly.  
+
+- We can define them in terms of `zero` and `add-one`, but the author says “directly”. How can it be possible?  
+- We should define `one` directly, and check `(add-one zero)` is equal to `one` - This is the condition that needs to be fulfilled in order to make a valid representation.  
+```scheme
+(define one (lambda (f) (lambda (x) (f x))))
+```
+
+- How can we compare the returned value of these procedures? Maybe we should check if the retuned procedures yields the same result for the same input.  
+- Here’s how it works with a simple function that adds 1 to the input:  
+```scheme
+(define (func x) (+ x 1))
+((zero func) 4) ; 4
+(((add-one zero) func) 4) ; 5
+((one func) 4) ; 5
+```
+
+- We can define `two` in a similar way:  
+```scheme
+(define two (lambda (f) (lambda (x) (f (f x)))))
+(((add-one one) func) 4) ; 6
+((two func) 4) ; 6
+```
+
+> Give a direct definition of the addition procedure +.  
+
+- I can give a definition, but I can’t explain why it looks like this..  
+```scheme
+(define (add a b)
+  (lambda (f) (lambda (x) ((a f) ((b f) x)))))
+```
+
+[Church encoding - Wikipedia](https://en.wikipedia.org/wiki/Church_encoding)  
+
