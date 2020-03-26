@@ -345,3 +345,72 @@ x
 
 [Church encoding - Wikipedia](https://en.wikipedia.org/wiki/Church_encoding)  
 
+<br>
+
+### Chapter 2.1.4 Extended Exercise: Interval Arithmetic
+
+- Additional exercises are provided in this chapter.  
+
+<br>
+
+###### Exercise 2.7
+
+> Define selectors `upper-bound` and `lower-bound` to complete the implementation.  
+
+```scheme
+(define (make-interval a b) (cons a b))
+```
+- Given the definition of `make-interval` above, defining selectors is straightforward:  
+```scheme
+(define (lower-bound z) (car z))
+(define (upper-bound z) (cdr z))
+```
+
+<br>
+
+###### Exercise 2.8
+
+> Using reasoning analogous to Alyssa’s, describe how the difference of two intervals may be computed. Define a corresponding subtraction procedure, called sub-interval.  
+
+- We can reason the lower bound of the difference is the difference between the lower bound of the first and the upper bound of the second.  
+- The upper bound of the difference is the opposite. It is the difference between the upper bound of the first and the lower bound of the second.  
+- This could be implemented like this:  
+```scheme
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+```
+
+<br>
+
+###### Exercise 2.9
+
+> The width of an interval is half of the difference between its upper and lower bounds.   
+> Show that the width of the sum (or difference) of two intervals is a function only of the widths of the intervals being added (or subtracted). Give examples to show that this is not true for multiplication or division.  
+
+- First, let’s define the procedure `width-interval`:  
+```scheme
+(define (width-interval z)
+  (/ (abs (- (lower-bound z) (upper-bound z))) 2.0))
+```
+
+- How can we evaluate the following expression? (Assuming `x` and `y` are predefined intervals):  
+```scheme
+(width-interval (add-interval x y))
+(width-interval (make-interval (+ (lower-bound x) (lower-bound y))
+                               (+ (upper-bound x) (upper-bound y))))
+(/ (abs (- (+ (lower-bound x) (lower-bound y)) (+ (upper-bound x) (upper-bound y)))) 2.0)
+
+; This is same as:
+(+ (/ (abs (- (lower-bound x) (upper-bound x))) 2.0) (/ (abs (- (lower-bound y) (upper-bound y))) 2.0))
+
+; Which is:
+(+ (width-interval x) (width-interval y))
+
+; In a similar way, the width of the difference of two intervals is:
+(/ (abs (- (- (lower-bound x) (upper-bound y)) (- (upper-bound x) (lower-bound y)))) 2.0)
+
+; Which is also:
+(+ (width-interval x) (width-interval y))
+```
+
