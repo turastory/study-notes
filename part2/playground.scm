@@ -125,3 +125,12 @@
 ; Exercise 2.9
 (define (width-interval z)
   (/ (abs (- (lower-bound z) (upper-bound z))) 2.0))
+
+; Exercise 2.10
+(define (div-interval-imp x y) 
+  (if (or (= (upper-bound y) 0) (= (lower-bound y) 0))
+      "div by zero error"
+      (mul-interval
+        x
+        (make-interval (/ 1.0 (upper-bound y))
+                       (/ 1.0 (lower-bound y))))))
