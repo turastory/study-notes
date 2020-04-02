@@ -418,13 +418,15 @@ x
 
 ###### Exercise 2.10
 
-> It is not clear what it means to divide by an interval that spans zero.  
+> It is not clear what it means to divide by an interval that spans zero. Modify `div-interval` to check for the condition, and to signal an error if it occurs.  
 
 - Assume that you have an interval, [0, 1]. There’s no way to define a division for zero as a denominator. Also, how can divide by an interval [-1, 1]?  
 - Raising an error when the interval spans zero - that means, the interval contains zero within the range.  
 ```scheme
 (define (div-interval-imp x y) 
-  (if (or (= (upper-bound y) 0) (= (lower-bound y) 0))
+  (if (or (= (upper-bound y) 0) 
+          (= (lower-bound y) 0) 
+          (< (* (upper-bound y) (lower-bound y)) 0))
       "div by zero error"
       (mul-interval
         x

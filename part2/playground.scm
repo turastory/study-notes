@@ -128,7 +128,9 @@
 
 ; Exercise 2.10
 (define (div-interval-imp x y) 
-  (if (or (= (upper-bound y) 0) (= (lower-bound y) 0))
+  (if (or (= (upper-bound y) 0) 
+          (= (lower-bound y) 0) 
+          (< (* (upper-bound y) (lower-bound y)) 0))
       "div by zero error"
       (mul-interval
         x
