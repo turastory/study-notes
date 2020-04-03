@@ -136,3 +136,17 @@
         x
         (make-interval (/ 1.0 (upper-bound y))
                        (/ 1.0 (lower-bound y))))))
+
+; Exercise 2.12
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+(define (make-center-percent c p)
+  (let ((dist (* c p)))
+    (make-interval (- c dist) (+ c dist))))
+(define (percent i)
+  (/ (width i) (center i)))

@@ -435,3 +435,60 @@ x
 ```
 - (I don’t know how to raise an error in Scheme)  
 
+<br>
+
+###### Exercise 2.11
+
+> By testing the signs of the endpoints of the intervals, it is possible to break `mol-interval` into nine cases, only one of which requires more than two multiplications.  
+
+- [SICP exercise 2.11 - Drewiki](http://wiki.drewhess.com/wiki/SICP_exercise_2.11)  
+
+<br>
+
+###### Exercise 2.12
+
+> Define a constructor `make-center-percent` that takes a center a percentage tolerance and produces the desired interval. You must also define a selector `percent` that produces the percentage tolerance for a given interval.  
+
+- With already provided procedures we can easily make it:  
+```scheme
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+(define (make-center-percent c p)
+  (let ((dist (* c p)))
+    (make-interval (- c dist) (+ c dist))))
+(define (percent i)
+  (/ (width i) (center i)))
+```
+
+<br>
+
+###### Exercise 2.13
+
+> Show that under the assumption of small percentage tolerances there is a simple formula for the approximate percentage tolerance of the product of two intervals in terms of the tolerances of the factors. You may simplify the problem by assuming that all numbers are positive.   
+
+- If you assume that all numbers are positive, we can represent the product of two intervals in terms of bounds of them:  
+```
+[n1, n2] * [n3, n4] = [n1 * n3, n2 * n4]
+```
+
+- If you rewrite the above expression in terms of center and percentage, you can get:  
+```
+[(1 - p1) * c1, (1 + p1) * c1] * [(1 - p2) * c2, (1 + p2) * c2] =
+[(1 - p1)(1 - p2) * c1 * c2, (1 + p1)(1 + p2) * c1 * c2]
+
+(1 - p1)(1 - p2) = 1 - p1 - p2 + p1 * p2
+(1 + p1)(1 + p2) = 1 + p1 + p2 + p1 * p2
+```
+
+- Both lower and upper bounds have `c1 * c2`. We can consider this is the center of the product.  
+- In “percentage” part, you can see that both have `1 + p1 * p2`. If we assume `p1` and `p2` are small so their product is pretty small and it doesn’t affect the overall tolerance at all, then we can ignore `p1 * p2`.  
+- In conclusion, here’s a simple formula for a tolerance of the product of two intervals, in terms of the tolerances of the factors:  
+```
+p = p1 + p2 (Simply their sum)
+```
+
