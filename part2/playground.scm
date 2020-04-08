@@ -14,8 +14,24 @@
       list2
       (cons (car list1) (append (cdr list1) list2))))
 
+; Exercise 2.17
 (define (last-pair items)
   (let ((left (cdr items)))
     (if (null? left)
         (car items)
         (last-pair left))))
+
+(define (reduce items g)
+  (let ((left (cdr items)))
+     (if (null? left)
+         (g items)
+         (reduce left))))
+
+; Exercise 2.18
+(define (reverse items)
+  (define (f input output)
+    (if (null? input)
+      output
+      (f (cdr input) (cons (car input) output))))
+  (f items (list)))
+

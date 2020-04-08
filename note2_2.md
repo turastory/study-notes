@@ -97,3 +97,13 @@ Expected result:
 
 - We need `car` to take the first element of the list, `cdr` to pass the remainder of the list, and `cons` to combine the element in reverse order.  
 
+```scheme
+(define (reverse items)
+  (define (f input output)
+    (if (null? input)
+      output
+      (f (cdr input) (cons (car input) output))))
+  (f items (list)))
+```
+(I think It’s easier to come up with iterative solution in this case.)  
+
