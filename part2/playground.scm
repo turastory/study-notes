@@ -35,3 +35,36 @@
       (f (cdr input) (cons (car input) output))))
   (f items (list)))
 
+; Exercise 2.19
+; Recall from Chapter 1.2.2
+(define (count-change amount) (cc-old amount 5))
+(define (cc-old amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0) 
+        (else (+ (cc-old amount 
+                         (- kinds-of-coins 1))
+                 (cc-old (- amount
+                            (first-denomination-old
+                             kinds-of-coins))
+                         kinds-of-coins)))))
+(define (first-denomination-old kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1) 
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 25)
+        ((= kinds-of-coins 5) 50)))
+
+; New (2.19)
+(define (cc amount coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (no-more? coins)) 0) 
+        (else (+ (cc amount 
+                     (except-first-denomination coins))
+                 (cc (- amount
+                        (first-denomination
+                         coins))
+                     coins)))))
+
+(define no-more? null?)
+(define except-first-denomination cdr)
+(define first-denomination car)
