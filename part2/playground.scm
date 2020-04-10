@@ -68,3 +68,17 @@
 (define no-more? null?)
 (define except-first-denomination cdr)
 (define first-denomination car)
+
+; Exercise 2.20
+(define (filter l condition)
+  (if (null? l)
+      l
+      (if (condition (car l))
+          (cons (car l) (filter (cdr l) condition))
+          (filter (cdr l) condition))))
+
+(define (same-parity first . rest)
+  (let ((condition (if (even? first)
+                       even?
+                       odd?)))
+    (cons first (filter rest condition))))

@@ -201,3 +201,24 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
 
 - It doesn’t matter. I guess it’s because no matter how the order of the list is, we always fully iterate the whole list and they are completely independent of each others.  
 
+<br>
+
+###### Exercise 2.20
+
+> Write a procedure `same-parity` that takes one or more integers and returns a list of all the arguments that have the same even-odd parity as the first argument.  
+
+```scheme
+(define (filter l condition)
+  (if (null? l)
+      l
+      (if (condition (car l))
+          (cons (car l) (filter (cdr l) condition))
+          (filter (cdr l) condition))))
+
+(define (same-parity first . rest)
+  (let ((condition (if (even? first)
+                       even?
+                       odd?)))
+    (cons first (filter rest condition))))
+```
+
