@@ -222,3 +222,44 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
     (cons first (filter rest condition))))
 ```
 
+<br>
+
+###### Mapping over lists
+
+> One extremely useful operation is to apply some transformation to each element in a list and generate the list of results. … We can abstract this general idea and capture it as a common pattern expressed as a higher-order procedure.  
+
+```scheme
+(define (map proc items)
+  (if (null? items)
+    nil
+    (cons (proc (car items))
+          (map proc (cdr items)))))
+```
+
+> `map` is an important construct, not only because it captures a common pattern, but because it establishes a **higher level of abstraction** in dealing with lists.  
+
+- In terms of `map`, we don’t give an attention to each element, and emphasize some transformation is applied to the list.  
+
+> The difference between the two definitions is not that the computer is performing a different progress, but that **we think about the process differently**. In effect, map helps establish an **abstraction barrier** that isolates the implementation of procedures that transform lists from the details of how the elements of the list are extracted and combined.   
+
+<br>
+
+###### Exercise 2.21
+
+> The procedure `square-list` takes a list of numbers as argument and returns a list of the squares of those numbers.  
+
+```scheme
+(square-list (list 1 2 3 4))
+(1 4 9 16)
+```
+
+- Two different definitions (Assume that we already have the procedure `square`):  
+```scheme
+(define (square-list items)
+  (if (null? items) 
+      nil 
+      (cons (square (car items)) (cdr items))))
+(define (square-list items) 
+  (map square items))
+```
+
