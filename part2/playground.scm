@@ -82,3 +82,27 @@
                        even?
                        odd?)))
     (cons first (filter rest condition))))
+
+; Chapter 2.2.1 - Mapping over lists
+(define (map proc items)
+  (if (null? items)
+    nil
+    (cons (proc (car items))
+          (map proc (cdr items)))))
+
+; Exercise 2.22
+(define (square-list items)
+  (define (iter things answer) 
+    (if (null? things)
+         answer 
+         (iter (cdr things)
+               (cons answer
+                     (square (car things))))))
+  (iter items (list)))
+
+; Exercise 2.23
+(define (for-each f items)
+  (cond ((null? items) #t)
+        (else (f (car items))
+              (for-each f (cdr items)))))
+

@@ -263,3 +263,48 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
   (map square items))
 ```
 
+<br>
+
+###### Exercise 2.22
+
+```scheme
+(define (square-list items)
+  (define (iter things answer) 
+    (if (null? things)
+         answer 
+         (iter (cdr things)
+               (cons (square (car things))
+                     answer))))
+  (iter items nil))
+```
+
+> Unfortunately, defining `square-list` this way produces the answer list in the reverse order of the one desired. Why?  
+
+- For every step, we combine the square of the element in the original list with the previous results (`answer`). Because it passes the argument `answer` to the second parameter of `cons`, former results appears later and latter results appears earlier in the list.  
+
+```scheme
+(define (square-list items)
+  (define (iter things answer) 
+    (if (null? things)
+         answer 
+         (iter (cdr things)
+               (cons answer
+                     (square (car things))))))
+  (iter items nil))
+```
+
+- This version doesn’t work either. It doesn’t form a valid sequence of pairs.  
+- List has a structure like this: `(a1 (a2 (... (an nil)`  
+- The above procedure forms a structure like this: `(((... (nil an) ...) a2) a1)`  
+
+<br>
+
+###### Exercise 2.23
+
+```scheme
+(define (for-each f items)
+  (cond ((null? items) #t)
+        (else (f (car items))
+              (for-each f (cdr items)))))
+```
+
