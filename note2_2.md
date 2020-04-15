@@ -308,3 +308,58 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
               (for-each f (cdr items)))))
 ```
 
+<br>
+
+### Chapter 2.2.2 Hierarchical Structures
+
+> The representation of sequences in terms of lists generalizes naturally to represent sequences whose elements may themselves be sequences.  
+
+> Another way to think of sequences whose elements are sequences is as **trees**. The elements of the sequence are the branches of the tree, and elements that are themselves sequences are subtrees.  
+
+> Recursion is a natural tool for dealing with tree structures, since we can often reduce operations on trees to operations on their branches, which reduce in turn to operations on the branches of the branches, and so on, until we reach the leaves of the tree.   
+
+- Divide and conquer?  
+
+`count-leaves` procedure which computes total count of the leaves of the tree:  
+```
+(define (count-leaves x)
+  (cond ((null? x) 0)                        ; Empty list: 0
+        ((not (pair? x)) 1)                  ; Leaf case: 1
+        (else (+ (count-leaves (car x))      ; Other: car + cdr
+                 (count-leaves (cdr x))))))
+```
+
+<br>
+
+###### Exercise 2.25
+
+> Give combinations of `cars` and `cdrs ` that will pick 7 from each of the following lists:  
+
+```scheme
+(1 3 (5 7) 9)
+; (car (cdr (car (cddr a)))) 
+((7))
+; (car (car a))
+(1 (2 (3 (4 (5 (6 7)))))
+; (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr a))))))))))))
+```
+
+<br>
+
+###### Exercise 2.26
+
+> Suppose we define x and y to be two lists:  
+```scheme
+(define x (list 1 2 3)) 
+(define y (list 4 5 6))
+```
+
+> What result is printed by the interpreter in response to evaluating each of the following expressions:   
+```scheme
+(append x y)
+; (1 2 3 4 5 6)
+(cons x y)
+; ((1 2 3) 4 5 6)
+(list x y)
+; ((1 2 3) (4 5 6))
+```
