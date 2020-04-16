@@ -363,3 +363,79 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
 (list x y)
 ; ((1 2 3) (4 5 6))
 ```
+
+<br>
+
+###### Exercise 2.27
+
+> Modify your `reverse` procedure of Exercise 2.18 to produce a `deep-reverse` procedure that takes a list as args ent and returns as its value the list with its elements reversed and with all sublists deep-reversed as well.  
+
+```scheme
+(define (deep-reverse items)
+  (define (f input output)
+    (cond ((null? input) output)
+          ((not (pair? input)) input)
+          (else (f (cdr input) (cons (deep-reverse (car input)) output)))))
+  (f items (list)))
+```
+
+<br>
+
+###### Exercise 2.28
+
+> Write a procedure `fringe` that takes as argument a tree (represented as a list) and returns a list whose elements are all the leaves of the tree arranged in left-to-right order.   
+
+1. The value for empty list is an empty list.  
+2. When we reach actual leaves, we should append it to the output which is made so far.  
+3. In reduction step, first we visit left side, and then visit right side  
+
+- ~~By doing this, we can get the reverse of the desired result. Simply applying `reverse` procedure to fix this. (We don’t have to take into hierarchical structure, because the result of `fringe` is already flat.)~~  
+- There’s no need to use `reverse` at all, if we visit the right side first.  
+
+```scheme
+; With reverse
+(define (fringe items)
+  (define (f input output)
+    (cond ((null? input) output)
+          ((not (pair? input)) (cons input output))
+          (else (f (cdr input) (f (car input) output)))))
+  (reverse (f items (list))))
+
+; Without reverse
+(define (fringe items)
+  (define (f input output)
+    (cond ((null? input) output)
+          ((not (pair? input)) (cons input output))
+          (else (f (car input) (f (cdr input) output)))))
+  (f items (list)))
+```
+
+<br>
+
+###### Exercise 2.29
+
+- Given the following constructors…  
+```scheme
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+```
+
+<br>
+
+```scheme
+; 2.29 - a
+(define (left-branch mobile) (car mobile))
+(define (right-branch mobile) (cadr mobile))
+(define (branch-length branch) (car branch))
+(define (branch-structure branch) (cadr branch))
+
+; 2.29 - b
+(define (total-weight entity)
+  (cond ((null? entity) 0)
+        ((not (pair? entity)) entity)
+        (else (+ (total-weight (left-branch entity))
+                 (total-weight (right-branch entity))))))
+```
+

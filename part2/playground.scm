@@ -106,3 +106,45 @@
         (else (f (car items))
               (for-each f (cdr items)))))
 
+; Chapter 2.2.2 Hierarchical Structures
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree)) 1)
+        (else (+ (count-leaves (car tree))
+                 (count-leaves (cdr tree))))))
+
+; Exercise 2.27
+(define (deep-reverse items)
+  (define (f input output)
+    (cond ((null? input) output)
+          ((not (pair? input)) input)
+          (else (f (cdr input) (cons (deep-reverse (car input)) output)))))
+  (f items (list)))
+
+; Exercise 2.28
+(define (fringe items)
+  (define (f input output)
+    (cond ((null? input) output)
+          ((not (pair? input)) (cons input output))
+          (else (f (car input) (f (cdr input) output)))))
+  (f items (list)))
+
+; Exercise 2.29
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+
+; 2.29 - a
+(define (left-branch mobile) (car mobile))
+(define (right-branch mobile) (cadr mobile))
+(define (branch-length branch) (car branch))
+(define (branch-structure branch) (cadr branch))
+
+; 2.29 - b
+(define (total-weight entity)
+  (cond ((null? entity) 0)
+        ((not (pair? entity)) entity)
+        (else (+ (total-weight (left-branch entity))
+                 (total-weight (right-branch entity))))))
+
