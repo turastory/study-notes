@@ -422,8 +422,7 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
   (list length structure))
 ```
 
-<br>
-
+Answer the questions in 151p:  
 ```scheme
 ; 2.29 - a
 (define (left-branch mobile) (car mobile))
@@ -435,7 +434,24 @@ So what we’re going to do is to reveal the hidden data structure, and implemen
 (define (total-weight entity)
   (cond ((null? entity) 0)
         ((not (pair? entity)) entity)
-        (else (+ (total-weight (left-branch entity))
+        ((not (pair? (branch-structure entity))) (branch-structure entity))
+        (else (+ (total-weight (left-branch entity)) ; Mobile
                  (total-weight (right-branch entity))))))
+
+; 2.29 - c
+(define (torque branch)
+  (* (branch-length branch) 
+     (total-weight (branch-structure branch))))
+
+(define (balanced? mobile)
+  (cond ((null? mobile) #f)
+        ((not (pair? mobile)) #t)
+        (else (and (= (torque (left-branch mobile)) (torque (right-branch mobile)))
+                   (balanced? (branch-structure (left-branch mobile)))
+                   (balanced? (branch-structure (right-branch mobile)))))))
 ```
+
+> Suppose we change the representation of mobiles so that the constructors now use `cons` instead of `list`. How much do you need to change your programs to convert to the new representation?  
+
+The main difference between those two is either the second element is a pair or not. So all we need to do, is to change the selectors - `right-branch`, and `branch-structure`. Because we use selectors for accessing elements in compound data, the implementation detail - in this case, “how to get the elements out of the data structure” is hidden.  
 

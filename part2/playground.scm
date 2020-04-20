@@ -145,6 +145,18 @@
 (define (total-weight entity)
   (cond ((null? entity) 0)
         ((not (pair? entity)) entity)
-        (else (+ (total-weight (left-branch entity))
+        ((not (pair? (branch-structure entity))) (branch-structure entity))
+        (else (+ (total-weight (left-branch entity)) ; Mobile
                  (total-weight (right-branch entity))))))
 
+; 2.29 - c
+(define (torque branch)
+  (* (branch-length branch) 
+     (total-weight (branch-structure branch))))
+
+(define (balanced? mobile)
+  (cond ((null? mobile) #f)
+        ((not (pair? mobile)) #t)
+        (else (and (= (torque (left-branch mobile)) (torque (right-branch mobile)))
+                   (balanced? (branch-structure (left-branch mobile)))
+                   (balanced? (branch-structure (right-branch mobile)))))))
