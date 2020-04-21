@@ -455,3 +455,117 @@ Answer the questions in 151p:
 
 The main difference between those two is either the second element is a pair or not. So all we need to do, is to change the selectors - `right-branch`, and `branch-structure`. Because we use selectors for accessing elements in compound data, the implementation detail - in this case, “how to get the elements out of the data structure” is hidden.  
 
+<br>
+
+###### Mapping over trees
+
+> Just as `map` is a powerful abstraction for dealing with sequences, `map` together with recursion is a powerful abstraction for dealing with trees.   
+
+> The recursive plan for `scale-tree` is similar to the one for `count-leaves`:  
+```scheme
+(define (scale-tree tree factor) 
+  (cond ((null? tree) nil)
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+```
+
+> Another way to implement `scale-tree` is to **regard the tree as a sequence of sub-trees** and use `map`. We map over the sequence, scaling each sub-tree in turn, and return the list of results. In the base case, where the tree is a leaf, we simply multiply by the factor:  
+```scheme
+(define (scale-tree-map tree factor)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (scale-tree-map sub-tree factor)
+             (* sub-tree factor)))
+       tree))
+```
+
+<br>
+
+###### Exercise 2.30
+
+> Define a procedure `square-tree` analogous to the `square-list` procedure in Exercise 2.21:  
+```scheme
+; direct solution
+(define (square-tree tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (square tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+
+; map solution
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-map sub-tree)
+             (square sub-tree)))
+       tree))
+```
+
+<br>
+
+###### Exercise 2.31
+
+> Abstract your answer to Exercise 2.30 to produce a procedure `tree-map` with the property that `square-tree` could be defined as:  
+```scheme
+(define (square-tree tree) (tree-map square tree))
+```
+
+- Let’s start taking common patterns from the previous two procedures - `scale-tree-map`, and `square-tree-map`. Then parameterize changing parts.  
+```scheme
+(define (tree-map f tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (tree-map f sub-tree)
+             (f sub-tree)))
+       tree))
+```
+
+<br>
+
+###### Exercise 2.32
+
+> We can represent **a set** as **a list of distinct elements**, and we can represent **the set of all subsets of the set** as **a list of lists**.  
+> For example, if the set is `(1 2 3)`, then the set of all subsets is `(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))`.  
+> Complete the following definition of a procedure that generates the set of subsets of a set and give a clear explanation of why it works:  
+```scheme
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (??) rest)))))
+```
+
+1. Let’s start with the simplest problem. How to calculate the all subsets of `(3)`?  
+```scheme
+; First pass (3) to subset.
+(subsets (3))
+; Cause it's not null, the variable rest becomes the subsets of () - which is ().
+(let ((rest (subsets (cdr s)))) ; rest = ()
+; What makes it to be `(() (3))`?
+(append '() (map <??> '()))
+```
+
+2. Let’s look at a different perspective. What should be added to the list of all subsets, when the original set becomes `(2 3)`? We already have `(), (3)` so `(2), (2 3)` is needed. It clearly shows some patterns it it:  
+```
+When an additional element is added to the set, we also get new subsets that adds new element on existing subsets.
+```
+
+So the following statement must produce `(() (3) (2) (2 3))`. Especially, `map` part should generate `((2) (2 3))` from `(() (3))`  
+```scheme
+(append (list '() (3)) (map <??> (list '() (3))))
+```
+
+So the answer is:  
+```scheme
+(lambda (list) (cons (car s) list))
+
+; Complete procedure
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (labmda (list) (cons (car s) list))
+                          rest)))))
+```
+

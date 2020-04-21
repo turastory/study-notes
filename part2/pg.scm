@@ -86,7 +86,7 @@
 ; Chapter 2.2.1 - Mapping over lists
 (define (map proc items)
   (if (null? items)
-    nil
+    '()
     (cons (proc (car items))
           (map proc (cdr items)))))
 
@@ -160,3 +160,49 @@
         (else (and (= (torque (left-branch mobile)) (torque (right-branch mobile)))
                    (balanced? (branch-structure (left-branch mobile)))
                    (balanced? (branch-structure (right-branch mobile)))))))
+
+(define (scale-tree tree factor) 
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+
+(define (scale-tree-map tree factor) 
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (scale-tree-map sub-tree factor)
+             (* sub-tree factor)))
+       tree))
+
+; Exercise 2.30
+(define (square-tree tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (square tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-map sub-tree)
+             (square sub-tree)))
+       tree))
+
+; Exercise 2.31
+(define (tree-map f tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (tree-map f sub-tree)
+             (f sub-tree)))
+       tree))
+
+(define (square-tree-map-abstracted tree)
+  (tree-map square tree))
+
+; Exercise 2.32
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (list) (cons (car s) list)) 
+                          rest)))))
