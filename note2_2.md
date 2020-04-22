@@ -569,3 +569,101 @@ So the answer is:
                           rest)))))
 ```
 
+<br>
+
+### Chapter 2.2.3 Sequences as Conventional Interfaces
+
+> In working with compound data, we’ve stressed how data abstraction permits us to design programs without becoming enmeshed in the details of data representations, and how abstraction preserves for us the flexibility to experiment with alternative representations.  
+> In this section, we introduce another powerful design principle for working with data structures—the use of **conventional interfaces**.  
+
+- We can observe some similarities in the following two procedures:   
+```scheme
+(define (sum-odd-squares tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree))
+         (if (odd? tree) (square tree) 0))
+        (else (+ (sum-odd-squares (car tree))
+                 (sum-odd-squares (cdr tree))))))
+
+(define (even-fibs n)
+  (define (next k)
+    (if (> k n)
+        '()
+        (let ((f (fib k)))
+          (if (even? f)
+              (cons f (next (+ k 1)))
+              (next (+ k 1))))))
+  (next 0))
+```
+
+![signal-flow](part2/signal-flow.jpg)
+[image:C6218FFC-2B66-4AF5-8BFA-3D01CBF2B648-28553-000035C7514D4761/C7CB19FA-EB79-4D7B-BAA7-56B4CF05CA2F.png]  
+
+> In `sum-odd-squares`, we begin with an **enumerator**, which generates a “signal” consisting of the leaves of a given tree. This signal is passed through a **filter**, which eliminates all but the odd elements. The resulting signal is in turn passed through a **map**, which is a “transducer” that applies the square procedure to each element. The output of the map is then fed to an **accumulator**, which combines the elements using +, starting from an initial 0. The plan for `even-fibs` is analogous.  
+
+- Unfortunately we can’t apply the signal-flow structure to these procedures directly, because the computations are spread over the program.  
+1. Enumeration is implemented partly by the `null?` and `pair?` tests, and partly by the tree-recursive structure.  
+2. Accumulation is found partly in the tests and the addition used in the recursion.  
+
+- What’s interesting in here is the fact that by elevating the level of abstraction of the perspective, we can capture an interesting commonalty.  
+
+> If we could organize our programs to make the signal-flow structure manifest in the procedures we write, this would increase the conceptual clarity of the resulting code.  
+
+<br>
+
+###### Sequence Operations
+
+> The key to organizing programs so as to more clearly reflect the signal-flow structure is **to concentrate on the “signals”** that **flow from one stage in the process to the next**.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What “signals” mean in this context?  
+
+- One important property of signals: “signals flow from one stage in the process to the next”  
+- It seems like we can implement signals in many different ways. The author uses list to implement the signals.  
+- It reminds me a lot about operators in Rx.  
+
+One of the examples of those procedures is `filter`. We can also implement accumulator and enumerator in a similar way:  
+```scheme
+(define (filter predicate sequence)
+  (cond ((null? sequence) '())
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+```
+
+> The value of **expressing programs as sequence operations** is that this helps us make program designs that are modular, that is, designs that are constructed by combining relatively independent pieces. We can encourage modular design by providing a library of standard components together with **a conventional interface for connecting the components in flexible ways** …  
+> **Sequences, implemented here as lists, serve as a conventional interface that permits us to combine processing modules.**  
+
+- Conventional interface is used for connecting the components.  
+- Sequence is a conventional interface, and is implemented as a list.  
+
+> One of the reasons for the success of Lisp as a programming language is that **lists provide a standard medium for expressing ordered collections** so that they can be manipulated using higher-order operations.   
+
+<br>
+
+###### Exercise 2.33
+
+> Fill in the missing expressions to complete the following definitions of some basic list manipulation operations as accumulations:  
+```scheme
+(define (map p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
+(define (append seq1 seq2)
+  (accumulate cons seq2 seq1))
+(define (length sequence)
+  (accumulate (lambda (item sum) (+ 1 sum)) 0 sequence))
+```
+
+<br>
+
+###### Exercise 2.34
+
+> Evaluating a polynomial in `x` at a given value of `x` can be formulated as an accumulation…  
+> Fill in the following template to produce a procedure that evaluates a polynomial using Horner’s rule.  
+
+```scheme
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) 
+                (* (+ this-coeff higher-terms) x))
+              0
+              coefficient-sequence))
+```
