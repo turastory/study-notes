@@ -667,3 +667,55 @@ One of the examples of those procedures is `filter`. We can also implement accum
               0
               coefficient-sequence))
 ```
+
+<br>
+
+###### Exercise 2.35
+
+> Redefine `count-leaves` from Section 2.2.2 as an accumulation:  
+
+```scheme
+(define (count-leaves tree)
+  (accumulate +
+              0
+              (map (lambda (t)
+                     (cond ((null? t) 0)
+                           ((pair? t) (count-leaves t))
+                           (else 1)))
+                   tree)))
+```
+
+- An alternative solution that does not use `accumulate`:  
+```scheme
+; With previously defined enumerate-tree procedure
+(define (count-leaves-enumerate tree)
+  (length (enumerate-tree tree)))
+```
+
+<br>
+
+###### Exercise 2.36
+
+```scheme
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+```
+
+<br>
+
+###### Exercise 2.37
+
+```scheme
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+(define (matrix-*-vector m v)
+  (map (lambda (c) (dot-product v c)) m))
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (c) (matrix-*-vector n c)) m)))
+```

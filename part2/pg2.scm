@@ -57,8 +57,8 @@
     cons '() (filter even? (map fib (enumerate-interval 0 n)))))
 
 ; Exercise 2.33
-(define (map p sequence)
-  (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
+;(define (map p sequence)
+;  (accumulate (lambda (x y) (cons (p x) y)) '() sequence))
 (define (append seq1 seq2)
   (accumulate cons seq2 seq1))
 (define (length sequence)
@@ -70,3 +70,40 @@
                 (+ this-coeff (* higher-terms x)))
               0
               coefficient-sequence))
+
+; Exercise 2.35
+(define (count-leaves-original tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree)) 1)
+        (else (+ (count-leaves-original (car tree))
+                 (count-leaves-original (cdr tree))))))
+
+(define (count-leaves tree)
+  (accumulate +
+              0
+              (map (lambda (t)
+                     (cond ((null? t) 0)
+                           ((pair? t) (count-leaves t))
+                           (else 1)))
+                   tree)))
+
+(define (count-leaves-enumerate tree)
+  (length (enumerate-tree tree)))
+
+; Exercise 2.36
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+
+; Exercise 2.37
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+(define (matrix-*-vector m v)
+  (map (lambda (c) (dot-product v c)) m))
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (c) (matrix-*-vector n c)) m)))
