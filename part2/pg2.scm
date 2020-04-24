@@ -107,3 +107,20 @@
 (define (matrix-*-matrix m n)
   (let ((cols (transpose n)))
     (map (lambda (c) (matrix-*-vector n c)) m)))
+
+; Exercise 2.38
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest)) (cdr rest))))
+  (iter initial sequence))
+(define fold-right accumulate)
+
+; Exercise 2.39
+(define (push value sequence)
+  (fold-right cons (list value) sequence))
+(define (reverse1 sequence)
+  (fold-right push '() sequence))
+(define (reverse2 sequence)
+  (fold-left (lambda (x y) (cons y x)) '() sequence))

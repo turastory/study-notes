@@ -719,3 +719,55 @@ One of the examples of those procedures is `filter`. We can also implement accum
   (let ((cols (transpose n)))
     (map (lambda (c) (matrix-*-vector n c)) m)))
 ```
+
+<br>
+
+###### Exercise 2.38
+
+> Given the `fold-right` procedure which is exactly the same as `accumulate` before, and `fold-left` which accumulate the sequence   
+```scheme
+(define fold-right accumulate)
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest)) (cdr rest))))
+  (iter initial sequence))
+
+; Evaluation Result
+; (fold-right / 1 (list 1 2 3))
+; > (/ 1 (/ 2 (/ 3 1)))
+; > 3/2
+; (fold-left / 1 (list 1 2 3))
+; > (/ (/ (/ 1 1) 2) 3)
+; > 1/6
+; (fold-right list '() (list 1 2 3))
+; > (list 1 (list 2 (list 3 '())))
+; > (1 (2 (3 ())))
+; (fold-left list '() (list 1 2 3))
+; > (list (list (list '() 1) 2) 3)
+; > (((() 1) 2) 3)
+```
+
+> Give a property that `op` should satisfy to guarantee that `fold-right` and `fold-left` will produce the same values for any sequence.  
+
+- The only difference between `fold-right` and `fold-left` is the order of application of the operation. In order to produce both the same result, `op` should ignore the order of parameters.  
+- Hence it’s Commutative property - The evaluation result of `(op a b)` should be equal to `(op b a)`. Some examples are `*`, `+`.  
+
+<br>
+
+###### Exercise 2.39
+
+> Complete the following definitions of `reverse` in terms of `fold-right` and `fold-left`:  
+```scheme
+; Exercise 2.39
+; push, and reverse1 is from the community wiki.
+(define (push value sequence)
+  (fold-right cons (list value) sequence))
+(define (reverse1 sequence)
+  (fold-right push '() sequence))
+(define (reverse2 sequence)
+  (fold-left (lambda (x y) (cons y x)) '() sequence))
+
+```
+
