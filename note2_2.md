@@ -771,3 +771,36 @@ One of the examples of those procedures is `filter`. We can also implement accum
 
 ```
 
+<br>
+
+###### Exercise 2.40
+
+> Define a procedure `unique-pairs` that, given an integer `n`, generates the sequence of pairs `(i, j)` with `1 <= j < i <= n`.  
+> Use `unique-pairs` to simplify the definition of `prime-sum-pairs` given above:  
+```scheme
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j) (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+```
+
+<br>
+
+###### Exercise 2.41
+
+> Write a procedure to find all ordered triples of distinct positive integers `i`, `j`, and `k` less than or equal to a given integer `n` that sum to a given integer `s`:  
+```scheme
+(define (sum-triples n s)
+  (define (unique-triples n)
+    (flatmap (lambda (i)
+               (flatmap (lambda (j)
+                          (map (lambda (k) (list i j k))
+                               (enumerate-interval 1 (- j 1))))
+                        (enumerate-interval 1 (- i 1))))
+             (enumerate-interval 1 n)))
+  (define (triple-sum-equal? triple)
+    (= (+ (car triple) (cadr triple) (caddr triple)) s))
+  (filter triple-sum-equal? (unique-triples n)))
+```
+

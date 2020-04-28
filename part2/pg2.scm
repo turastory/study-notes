@@ -124,3 +124,49 @@
   (fold-right push '() sequence))
 (define (reverse2 sequence)
   (fold-left (lambda (x y) (cons y x)) '() sequence))
+
+; Nested Mappings
+(define (enumerate-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j) (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+
+(define (prime-sum? pair)
+  (prime? (+ (car pair) (cadr pair))))
+
+(define (prime? n)
+  (define (iter n i)
+    (cond ((= (remainder n i) 0) #f)
+          ((< n (* i i)) #t)
+          (else (iter n (+ i 1)))))
+  (iter n 2))
+
+(define (flatmap proc seq)
+  (accumulate append '() (map proc seq)))
+
+(define (make-pair-sum pair)
+  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum (filter prime-sum? (enumerate-pairs n))))
+
+; Exercise 2.40
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j) (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+
+; Exercise 2.41
+(define (sum-triples n s)
+  (define (unique-triples n)
+    (flatmap (lambda (i)
+               (flatmap (lambda (j)
+                          (map (lambda (k) (list i j k))
+                               (enumerate-interval 1 (- j 1))))
+                        (enumerate-interval 1 (- i 1))))
+             (enumerate-interval 1 n)))
+  (define (triple-sum-equal? triple)
+    (= (+ (car triple) (cadr triple) (caddr triple)) s))
+  (filter triple-sum-equal? (unique-triples n)))
