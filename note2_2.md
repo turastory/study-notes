@@ -804,3 +804,96 @@ One of the examples of those procedures is `filter`. We can also implement accum
   (filter triple-sum-equal? (unique-triples n)))
 ```
 
+<br>
+
+###### Exercise 2.42
+
+> The “eight-queens puzzle” asks how to place eight queens on a chessboard so that no queen is in check from any other (i.e., no two queens are in the same row, column, or diagonal). One possible solution is shown in Figure 2.8. One way to solve the puzzle is to work across the board, placing a queen in each column. Once we have placed k − 1 queens, we must place the kth queen in a position where it does not check any of the queens already on the board.  
+> We can formulate this approach recursively: Assume that we have already generated the sequence of all possible ways to place k − 1 queens in the first k − 1 columns of the board. For each of these ways, generate an extended set of positions by placing a queen in each row of the kth column. Now filter these, keeping only the positions for which the queen in the kth column is safe with respect to the other queens. Tis produces the sequence of all ways to place k queens in the first k columns. By continuing this process, we will produce not only one solution, but all solutions to the puzzle.   
+
+- What if there’s no solution for kth column? In order to this solution works, there should be always at least one solution for each step.  
+
+Given the procedure `queens`…  
+```scheme
+(define (queens board-size) 
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+          (lambda (positions) (safe? k positions)) 
+          (flatmap
+            (lambda (rest-of-queens) 
+              (map (lambda (new-row)
+                     (adjoin-position
+                      new-row k rest-of-queens))
+                   (enumerate-interval 1 board-size)))
+            (queen-cols (- k 1))))))
+  (queen-cols board-size))
+```
+
+> Complete the program by implementing the representation for sets of board positions, including the procedure `adjoin-position`, which adjoins a new row-column position to a set of positions, and `empty-board`, which represents an empty set of positions. You must also write the procedure `safe?`, which determines for a set of positions, whether the queen in the kth column is safe with respect to the others. (Note that we need only check whether the new queen is safe— the other queens are already guaranteed safe with respect to each other.)   
+
+- So this is not an algorithmic question. It’s about designing a data structure.  
+- First, we don’t need to representation the entire board. All we need to do is to denote the positions of queens.  
+- We can represent the position in this way:  
+```scheme
+(cons column row)
+
+; Define constructor & selectors
+(define make-pos cons)
+(define pos-column car)
+(define pos-row cdr)
+```
+
+- Let’s start from `adjoin-position`. `new-row` is just a number, and `k` is also a number. `rest-of-queens` is a list of positions(where to place the queens), with size `k`. The procedure might look like this:  
+```scheme
+; positions: ((3 . 4) (5 . 2) (6 . 8) ...) - k items
+(define (adjoin-position row column positions)
+  (append positions (list (make-pos column row))))
+```
+
+- By doing `flatmap`, we get a list of ways to place k queens in k columns. At this point, the data may look like this:  
+```scheme
+; For k=3
+; (((1 . 4) (2 . 2) (3 . 8))
+;  ((1 . 1) (2 . 6) (3 . 4))
+;  ...)
+; For k = 0
+; (()) -> (list empty-board)
+(define empty-board (list))
+```
+- Each item represents a single way to place queens. Though this set of positions may be invalid. How can one check if it is valid or not?  
+- First we need a procedure that computes whether two positions are valid:  
+```scheme
+(define (safe-positions? p1 p2)
+  (define (horizontal? p1 p2)
+    (= (pos-column p1) (pos-column p2)))
+  (define (vertical? p1 p2)
+    (= (pos-row p1) (pos-row p2)))
+  (define (diagonal? p1 p2)
+    (= (abs (- (pos-column p1) (pos-column p2)))
+       (abs (- (pos-row p1) (pos-row p2)))))
+  (not (or (horizontal? p1 p2)
+           (vertical? p1 p2)
+           (diagonal? p1 p2))))
+```
+
+- `safe?` could be implemented by accumulating `safe-positions?`:  
+```scheme
+(define (safe? k positions)
+  (let ((recent (last positions))
+        (rest (take positions (- k 1))))
+    (accumulate 
+      (lambda (b1 b2) (and b1 b2)) 
+      true 
+      (map (lambda (position) (safe-positions? position recent))
+           rest))))
+```
+
+- Our procedure `queens` properly works even if we change the implementation of constructor and selector procedures:  
+```scheme
+; Define constructor & selectors with list
+(define (make-pos column row) (list column row))
+(define pos-column car)
+(define pos-row cadr)
+```

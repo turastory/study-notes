@@ -170,3 +170,49 @@
   (define (triple-sum-equal? triple)
     (= (+ (car triple) (cadr triple) (caddr triple)) s))
   (filter triple-sum-equal? (unique-triples n)))
+
+; Exercise 2.42
+(define (queens board-size) 
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+          (lambda (positions) (safe? k positions)) 
+          (flatmap
+            (lambda (rest-of-queens) 
+              (map (lambda (new-row)
+                     (adjoin-position
+                      new-row k rest-of-queens))
+                   (enumerate-interval 1 board-size)))
+            (queen-cols (- k 1))))))
+  (queen-cols board-size))
+
+(define (make-pos column row) (list column row))
+(define pos-column car)
+(define pos-row cadr)
+
+(define (adjoin-position row column positions)
+  (append positions (list (make-pos column row))))
+
+(define empty-board (list))
+
+(define (safe-positions? p1 p2)
+  (define (horizontal? p1 p2)
+    (= (pos-column p1) (pos-column p2)))
+  (define (vertical? p1 p2)
+    (= (pos-row p1) (pos-row p2)))
+  (define (diagonal? p1 p2)
+    (= (abs (- (pos-column p1) (pos-column p2)))
+       (abs (- (pos-row p1) (pos-row p2)))))
+  (not (or (horizontal? p1 p2)
+           (vertical? p1 p2)
+           (diagonal? p1 p2))))
+
+(define (safe? k positions)
+  (let ((recent (last positions))
+        (rest (take positions (- k 1))))
+    (accumulate 
+      (lambda (b1 b2) (and b1 b2)) 
+      true 
+      (map (lambda (position) (safe-positions? position recent))
+           rest))))
