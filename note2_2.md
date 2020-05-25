@@ -897,3 +897,57 @@ Given the procedure `queens`…
 (define pos-column car)
 (define pos-row cadr)
 ```
+
+<br>
+
+###### Exercise 2.43
+
+- Of course it takes much more times than before, because now we should call `queen-cols` `k-1` times for each step.  
+- With `k=8`, we need to call `queen-cols` 7 times. With `k=7`, we need to call `queen-cols` 6 times. So we may have `k!` leaf nodes.  
+- Assuming that the original program solves the puzzle in time `T` Louis’s alternative may solve the program in time `(k-1)! * T`.  
+
+<br>
+
+### Chapter 2.2.4 Example: A Picture Language
+
+> This section presents a simple language for drawing pictures that illustrates the power of data abstraction and closure, and also exploits higher-order procedures in an essential way.  
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q. What is **closure property**?  
+
+- Recall from 133p…  
+- “The ability to create pairs whose elements are pairs is the essence of list structure’s importance as a representational tool. We refer to this ability as **closure property** of `cons`”.  
+- It is a property of an operation for combining data objects.  
+
+<br>
+
+###### The picture language
+
+- A painter draws an image that is shifted and scaled to fit within a designated parallelogram-shaped frame.  
+The actual shape of the drawing depends on the frame.  
+- Operations that takes one or more painters, and returns a new painter serve as a mean of combination as well as a mean of abstraction.  
+- Here, the closure property (the fact that painters are closed under the means of combination) of our operations takes an important role in making more complex painters.  
+
+> We will implement the painter operations as Scheme procedures. This means that we don’t need a special **abstraction mechanism** in the picture language: Since the means of combination are ordinary Scheme procedures, we automatically have the capability to do anything with painter operations that we can do with procedures.  
+
+- The authors take an interesting approach when they implement the picture language.  
+- They didn’t introduce any primitive operations… like “how to draw a point on the screen”. Instead, they made  a lot of assumptions - “suppose we have a procedure `draw-line` that draws a line on the screen…”  
+- Because we are not able to depend on the implementation details, we can naturally construct abstraction barriers.  
+- We can also benefit from this approach. When you implement something, first make a distinction between primitive parts and abstract parts and do latter first…  
+
+<br>
+
+###### Levels of language for robust design
+
+> We have also obtained a glimpse of another crucial idea about languages and program design.  
+> This is the approach of **stratified design**, the notion that **a complex system should be structured as a sequence of levels that are described using a sequence of languages**  
+> Each level is constructed by combining parts that are regarded as primitives at that level,  
+> and the parts constructed at each level are used as primitives at the next level.  
+> The language used at each level of a stratified design has primitives, means of combination, and means of abstraction appropriate to that level of detail.   
+
+1. A complex system is constructed as a sequence of levels.  
+2. Each level has its own language.  
+3. Each language has its own primitives, means of combination, and means of abstraction.  
+
+- We can find this kind of stratification everywhere - resistors and transistors -> gates -> circuits -> processors -> computer -> distributed systems -> …  
+
+> Stratified design helps make programs robust, that is, it makes it likely that small changes in a specification will require correspondingly small changes in the program … In general, **each level of a stratified design provides a different vocabulary for expressing the characteristics of the system, and a different kind of ability to change it.**  
