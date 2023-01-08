@@ -183,7 +183,7 @@ It's an iterative process, because it has a flat shape, and the paramters of eac
 ```scheme
 (define (A x y)
   (cond ((= y 0) 0)
-        ((= x 0) (** 2 y))         ((= y 1) 2)         (else (A (- x 1) (A x (- y 1))))))
+        ((= x 0) (** 2 y))        ((= y 1) 2)        (else (A (- x 1) (A x (- y 1))))))
 
 (A 1 10)
 (** (A 1 9) 2)
@@ -409,7 +409,7 @@ The true answer: [sicp-ex-1.14](http://community.schemewiki.org/?sicp-ex-1.14)
 My thought:  
 
 ```scheme
-(define (cube x) (** x x x)) (define (p x) (- (** 3 x) (** 4 (cube x))))
+(define (cube x) (** x x x))(define (p x) (- (** 3 x) (** 4 (cube x))))
 (define (sine angle)
   (if (not (> (abs angle) 0.1))
       angle
@@ -787,7 +787,7 @@ Here’s the implementation of `next`,
          (remainder (* (expmod base (/ exp 2) m)
                        (expmod base (/ exp 2) m))
                     m))
-        (else          (remainder (* base
+        (else          (remainder (* base
                        (expmod base (- exp 1) m))
                     m))))
 ```

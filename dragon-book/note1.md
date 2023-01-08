@@ -154,3 +154,117 @@ Note that syntax analyzer only checks the grammatical structure of the token str
 - Semantic analyzer checks the meaning of each node of the syntax tree.
 
 In the actual implementation, instead of local concepts phases, they are grouped into passes, which produces output file for the given input file.
+
+## 1.3 The Evolution of Programming Languages
+
+We can classify programming languages with a variety of ways.
+
+1. Generation - we can categorize languages by the generation.
+   First-generation - machine language
+   Second-generation - assembly language
+   Third-generation - general purpose high-level languages like C, Java
+   Fourth-generation - languages for specific purpose like SQL(for database queries), Postscript(for text formatting)
+   Fifth-generation - constraint/logic based languages like Prolog, OPS5.
+2. The way of describing the program
+   Imperative - specify how a computation is to be done
+   Declarative - what computation is to be done
+3. von Neumann language, scripting language, object-oriented langauge, and many more classifications
+
+> Note on fifth-generation language - they aim to yield a program based on the constraints, not the algorithms by programmer.
+> but deriving an efficient algorithm from the given constraints is a very difficult, so not many efforts were made in this field.
+
+### Summary
+
+- Programming languages evolved through the century. Starting from assembly language, high-level languages like Fortran, Cobol, Lisp was born in late 1950's.
+- As the programming langauges advances, more efficient and robust compiler technology is needed.
+
+## 1.4 The Science of Building a Compiler
+
+> Compiler design is full of beautiful examples where **complicated real-world problems are solved by abstracting the essence of the problem mathematically**.
+
+### 1.4.1 Modeling in Compiler Design and Implementation
+
+> The study of compilers is mainly a study of how we design the right mathematical models and choose the right algorithms,
+> while balancing the need for generality and power against simplicity and efficiency.
+
+- **Finite-state machines**, **regular expressions** for describing lexical units of the program
+- **Context-free grammars** for describing the syntactic structure of the language -> Chapter 4
+- **Trees** for representing the structure of the programs -> Chapter 5
+
+### Summary
+
+- One aspect of the compiler design is to choose the right mathematical models and algorithms.
+  Some of examples of such models are: finite-state machines, context-free grammars, syntax tree, and much more.
+- Another aspect of the compiler design is "optimization", which produces more efficient code than the original one,
+  while preserves the meaning of it in a reasonable amount of time.
+
+## 1.5 Applications of Compiler Technology
+
+Compiler design impacts several other areas of computer science.
+
+- The implementation of high-level programming languages (designing a compiler is not the same as designing a language)
+- Optimizations for computer architectures
+- Design of new computer architectures
+- Program translations
+- Software productivity tools
+
+## 1.6 Programming Language Basics
+
+There are some concepts and distinctions which appears in most programming langauges.
+
+### 1.6.1 The Static/Dynamic Distinction
+
+> Among the most important issues that we face when designing a compiler for a language is **what decisions can the compiler make about a program.**
+
+- Static policy - the compiler can make decisions, before the program can be run. (compile time)
+- Dynamic policy - the decisions are made when we execute the program. (run time)
+
+One example of such distinction is the scope of declarations.
+
+- static scope (lexical scope) - it is possible to determine the scope of a declaration by "looking at" the program. (hence 'lexical')
+- dynamic scope - it is not possible to determine the scope of a declaration ahead of the execution of the program, and the scope may change as the program runs.
+
+### 1.6.2 Environments and States
+
+> Another important distinction we must make when discussing programming languages is wether changes occurring as the program runs
+> affect _the value of data elements_, or affect _the interpretation of names for that data_.
+
+#### About the Environment
+
+The environment is **a mapping from names to locations(variables) in the store**.
+
+Consider the following C code:
+
+```c
+int i; // global i
+
+void fn() {
+  int i = 3; // local i
+}
+```
+
+In the body of the function `fn()`, the name `i` refers to the local variable(location) `i`.
+
+- The scope of the function `fn()` changes the environment where the interpretation of name `i` is made.
+- Global variable `i` is given a location in the store once and for all, as the compiler generates object code.
+
+#### About the State
+
+The state is **a mapping from locations to their values**.
+
+```c
+#define ARRAYSIZE 100
+
+int i = 3;
+i = 5;
+```
+
+- The state of the location `i` was `3`, and then changed to `5` at run time. It is dynamic binding of the state.
+- The state of the location `ARRAYSIZE` is `100` for the rest of the program. It is static binding of the state.
+
+### 1.6.3 Block Structure
+
+In C, the syntax of blocks is given by
+
+1. One type of statment is a block. (A block is a statement) A block can appear anywhere the other statements can appear.
+2. A block is a sequence of declarations followed by a sequence of statements, all surrounded by braces.
